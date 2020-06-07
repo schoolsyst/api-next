@@ -15,7 +15,7 @@ def test_read_users_self_not_logged_in():
         assert response.status_code == 401
 
 
-def test_auth():
+def test_auth_ok():
     # login
     with database_mock() as mock:
         mock.collection("users").insert(mocks.users.alice.json(by_alias=True))
@@ -26,6 +26,25 @@ def test_auth():
         assert response.status_code == 200
         assert "access_token" in response.json().keys()
         assert "token_type" in response.json().keys()
+
+
+def test_auth_wrong_username():
+    with database_mock() as mock:
+        mock.collection("users").insert(mocks.users.alice.json(by_alias=True))
+        response = client.post(
+            "/auth/", data={"username": "not alice", "password": ALICE_PASSWORD},
+        )
+        assert response.status_code == 401
+
+
+def test_auth_wrong_password():
+    with database_mock() as mock:
+        mock.collection("users").insert(mocks.users.alice.json(by_alias=True))
+        response = client.post(
+            "/auth/",
+            data={"username": mocks.users.alice.username, "password": "hmmmmmmmm"},
+        )
+        assert response.status_code == 401
 
 
 def test_read_users_self_logged_in():
