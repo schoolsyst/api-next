@@ -9,7 +9,8 @@ from schoolsyst_api.accounts.auth import (
     is_password_strong_enough,
     verify_password,
 )
-from tests import JOHN_PASSWORD, database_mock, mocks
+from tests import database_mock, mocks
+from tests.mocks import JOHN_PASSWORD
 from zxcvbn import zxcvbn
 
 
