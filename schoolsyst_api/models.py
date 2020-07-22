@@ -29,9 +29,12 @@ class User(Resource):
     """
 
     joined_at: datetime
-    name: str  # unique
+    username: str  # unique
     email: EmailStr  # unique
-    activated: bool = False
+    email_is_confirmed: bool = False
+
+class DBUser(User):
+    password_hash: str
 
 
 class OwnedResouce(Resource):
@@ -192,18 +195,22 @@ class Event(OwnedResouce):
 class EventMutationInterpretation(str, Enum):
     """
     #### edit
+
     A simple editing of the course, while keeping it on the same day.
     e.g. For the 2019-12-08 Physics course from 08:00 to 08:55, the room is L013 and not L453
     
     #### reschedule
+
     A rescheduling. The room and other info may also be changed for the rescheduled event.
     e.g. The 2019-08-12 Mathematics course from 13:05 to 14:00 is moved to 2019-08-14 from 08:00 to 08:55  
     
     #### addition
+
     An exceptional course that is not part of the regular schedule.
     e.g. An exceptional History course will be added at 2019-07-11, from 16:45 to 18:00
     
     #### deletion
+
     A removal of course, without rescheduling.
     e.g. The 2020-01-13 Chemistry course from 15:50 to 16:45 is cancelled
     """
