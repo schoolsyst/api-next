@@ -31,6 +31,7 @@ class User(Resource):
     joined_at: datetime
     name: str  # unique
     email: EmailStr  # unique
+    activated: bool = False
 
 
 class OwnedResouce(Resource):
