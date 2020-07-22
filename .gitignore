@@ -140,3 +140,6 @@ dmypy.json
 
 # Universal Package Manager
 .upm/
+
+# Environment
+.env
