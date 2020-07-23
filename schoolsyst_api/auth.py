@@ -46,30 +46,43 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 class Token(BaseModel):
+    """As defined by OAuth 2"""
+
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
+    """Models the data in the JWT token's payload"""
+
     username: Optional[str] = None
 
 
+# Context for password hashing
 password_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
+# Special FastAPI class to inject as a dependency
+# and get appropriate openapi.json integration
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify that the plain_password matches against a hash `hashed_password`"""
     return password_context.verify(plain_password, hashed_password)
 
 
 def hash_password(plain_password: str) -> str:
+    """Hash the plain password"""
     return password_context.hash(plain_password)
 
 
 def get_user(
     fake_db: Dict[str, Dict[str, Any]], username: str
 ) -> Optional[models.DBUser]:
+    """
+    Get a user by username from the DB.
+    Returns `None` if the user is not found.
+    """
     user_dict = fake_db.get(username)
     if not user_dict:
         return None
@@ -77,6 +90,10 @@ def get_user(
 
 
 def authenticate_user(fake_db: Dict[str, Dict[str, Any]], username: str, password: str):
+    """
+    Tries to authentificate the user with `username` and `password`.
+    Returns `False` if the password is incorrect or if the user is not found.
+    """
     user = get_user(fake_db, username)
     if not user:
         return False
@@ -90,21 +107,44 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     expire = datetime.utcnow() + (
         expires_delta if expires_delta is not None else timedelta(minutes=15)
     )
+    """
+    Creates an OAuth2 JWT access token:
+    Encodes the `payload` with SECRET_KEY using JWT_SIGN_ALGORITHM,
+    set the expiration timestamp `exp` to `expires_delta` in the future
+    """
     to_encode.update({"exp": expire})
     encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_SIGN_ALGORITHM)
     return encoded_jwt
 
 
 def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
+    """
+    Extract the username from the JWT's `sub`.
+    The sub is of the form <resource type>:<resource>
+    Here we expect a username, so <resource type> needs to be `username`.
+    If <resource type> is not `username`, if the `sub` does not have the correct form
+    or if `sub` is not in the `payload`, return `None`.
+    """
     if (subject := payload.get("sub")) is None:
         return None
     if not subject.startswith("username:"):
         return None
     else:
+        # Damn, if only str.removeprefix was in py3.8... gotta wait for py3.9
         return subject[len("username:") :]
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
+    """
+    Dependency to get the current user from `oauth2_scheme`'s token.
+    The (JWT) token is decoded, the username is extracted from its payload,
+    then the user is looked up by username from the database and returned.
+
+    For security concerns, the pydantic model returned does not include the password hash.
+
+    A 401 Unauthorized exception is automatically raised if any problem arises
+    during token decoding or user lookup
+    """
     # exception used everytime an error is encountered during verification
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -137,6 +177,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def get_current_confirmed_user(
     current_user: models.User = Depends(get_current_user),
 ):
+    """
+    Gets the current user with `get_current_user` and raises a 400 if the gotten user
+    hasn't confirmed its email address
+    """
     if not current_user.email_is_confirmed:
         raise HTTPException(
             status_code=400, detail="User has not confirmed its email address"
