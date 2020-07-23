@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 from schoolsyst_api import auth, cors
 from schoolsyst_api import __version__
 import toml
@@ -10,6 +11,7 @@ api = FastAPI(
     version=__version__,
     title="schoolsyst",
     description=pyproject["tool"]["poetry"]["description"],
+    default_response_class=ORJSONResponse,
 )
 api.add_middleware(**cors.middleware_params)
 api.include_router(auth.router, tags=["Users"])
