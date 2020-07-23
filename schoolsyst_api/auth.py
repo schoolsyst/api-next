@@ -35,10 +35,6 @@ fake_users_db = {
 api = FastAPI()
 
 
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-
 load_dotenv("../.env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_SIGN_ALGORITHM = "HS256"
@@ -167,7 +163,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
     if user is None:
         raise credentials_exception
     # Finally return the user
-    # get_user actually returns DBUser, which contains the password hash, 
+    # get_user actually returns DBUser, which contains the password hash,
     # we don't want this in the public output.
     return models.User(**user.dict())
 
@@ -186,14 +182,17 @@ async def get_current_confirmed_user(
     return current_user
 
 
-@api.get("/users/self", response_model=models.User)
-async def read_users_self(
-    current_user: models.User = Depends(get_current_confirmed_user),
-):
+@api.get(
+    "/users/self",
+    response_model=models.User,
+    tags=["Authentification"],
+    summary="Get the currently logged-in user",
+)
+async def read_users_self(current_user: models.User = Depends(get_current_user),):
     return current_user
 
 
-@api.post("/auth/")
+@api.post("/auth/", tags=["Authentification"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Try to auth the user
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
@@ -205,11 +204,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
     # Create the access token
     access_token = create_access_token(
-        data={"sub": f"username:{user.username}"},
+        payload={"sub": f"username:{user.username}"},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
     # Return the access token
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")
+
 
 @api.post(
     "/users/",
