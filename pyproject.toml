@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "schoolsyst-api"
 version = "0.1.0"
-description = "schoolsyst.com's REST/GraphQL API built with FastAPI"
+description = "schoolsyst.com's REST/GraphQL API built with FastAPI. See https://schoolsyst.com and https://dev.schoolsyst.com/docs"
 authors = ["Ewen Le Bihan <hey@ewen.works>"]
 license = "AGPL-3.0-only"
 repository = "https://github.com/schoolsyst/api-next"
@@ -22,6 +22,7 @@ python-multipart = "^0.0.5"
 passlib = {extras = ["argon2"], version = "^1.7.2"}
 python-dotenv = "^0.14.0"
 python-jose = {extras = ["cryptography"], version = "^3.1.0"}
+toml = "^0.10.1"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
