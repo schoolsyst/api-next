@@ -5,3 +5,7 @@ dev:
 dependency-graph:
 	poetry run \
 		pydeps schoolsyst_api --only schoolsyst_api -oDEPENDENCY_GRAPH.png -Tpng --rmprefix schoolsyst_api.
+
+fmt:
+	poetry run black .
+	poetry run isort -y
