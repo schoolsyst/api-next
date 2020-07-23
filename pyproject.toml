@@ -29,6 +29,7 @@ pydeps = "^1.9.3"
 pylint = "^2.5.3"
 rope = "^0.17.0"
 ptpython = "^3.0.3"
+vulture = "^1.5"
 
 [build-system]
 requires = ["poetry>=0.12"]
