@@ -36,7 +36,7 @@ class User(Resource):
 class DBUser(User):
     password_hash: str
 
-class UserCreation(Resource):
+class UserCreation(BaseModel):
     username: str
     email: EmailStr
     password: str

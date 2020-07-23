@@ -82,6 +82,21 @@ def get_user(fake_db: Dict[str, Dict[str, Any]], username: str) -> Optional[DBUs
     return DBUser(**user_dict)
 
 
+def is_username_taken(fake_db: Dict[str, Dict[str, Any]], username: str) -> bool:
+    """
+    Checks if the given username is already taken
+    """
+    return get_user(fake_db, username) is not None
+
+
+def is_email_taken(fake_db: Dict[str, Dict[str, Any]], email: EmailStr) -> bool:
+    """
+    Checks if the given email is already taken
+    """
+    emails = [u["email"] for _, u in fake_db.items()]
+    return email in emails
+
+
 def authenticate_user(fake_db: Dict[str, Dict[str, Any]], username: str, password: str):
     """
     Tries to authentificate the user with `username` and `password`.
@@ -210,8 +225,25 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     summary="Create a user account",
 )
 def create_user_account(user_in: UserCreation):
+    """
+    Create a user account.
+    Emails and usernames are unique, usernames are _not_ case-sensitive
+    """
+    # Check if the username is not already taken
+    if is_username_taken(fake_users_db, user_in.username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This username is already taken",
+        )
+    # Check if the email is not already taken
+    if is_email_taken(fake_users_db, user_in.email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This email is already taken",
+        )
     # Create the DBUser
-    db_user = models.DBUser(
+    db_user = DBUser(
+        uuid=uuid4(),
         joined_at=datetime.utcnow(),
         email_is_confirmed=False,
         password_hash=hash_password(user_in.password),
