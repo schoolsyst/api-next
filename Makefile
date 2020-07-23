@@ -9,3 +9,8 @@ dependency-graph:
 fmt:
 	poetry run black .
 	poetry run isort -y
+
+check-dead:
+	poetry run \
+		vulture schoolsyst_api --min-confidence 61
+
