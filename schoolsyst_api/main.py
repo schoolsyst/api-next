@@ -1,9 +1,9 @@
+import toml
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from schoolsyst_api import auth, cors
-from schoolsyst_api import __version__
-import toml
+
+from schoolsyst_api import __version__, auth, cors
 
 # Extract some vars from pyproject.toml to use with FastAPI()
 pyproject = toml.load(open("pyproject.toml"))

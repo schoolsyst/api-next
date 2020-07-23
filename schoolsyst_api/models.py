@@ -2,15 +2,8 @@ from datetime import date, datetime, time
 from enum import Enum
 from typing import *
 
-from pydantic import (
-    UUID4,
-    BaseModel,
-    EmailStr,
-    PositiveFloat,
-    PositiveInt,
-    conint,
-    confloat,
-)
+from pydantic import (UUID4, BaseModel, EmailStr, PositiveFloat, PositiveInt,
+                      confloat, conint)
 
 Primantissa = confloat(le=1, ge=0)
 
@@ -33,13 +26,16 @@ class User(Resource):
     email: EmailStr  # unique
     email_is_confirmed: bool = False
 
+
 class DBUser(User):
     password_hash: str
+
 
 class UserCreation(BaseModel):
     username: str
     email: EmailStr
     password: str
+
 
 class OwnedResouce(Resource):
     """
