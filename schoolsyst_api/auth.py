@@ -1,17 +1,18 @@
 import os
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from typing import *
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
-from schoolsyst_api import models
-from schoolsyst_api.models import UserCreation
+from schoolsyst_api.models import UserCreation, User, DBUser
+
+router = APIRouter()
 
 fake_users_db = {
     "johndoe": {
@@ -31,9 +32,6 @@ fake_users_db = {
         "email_is_confirmed": True,
     },
 }
-
-api = FastAPI()
-
 
 load_dotenv("../.env")
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -72,17 +70,16 @@ def hash_password(plain_password: str) -> str:
     return password_context.hash(plain_password)
 
 
-def get_user(
-    fake_db: Dict[str, Dict[str, Any]], username: str
-) -> Optional[models.DBUser]:
+def get_user(fake_db: Dict[str, Dict[str, Any]], username: str) -> Optional[DBUser]:
     """
     Get a user by username from the DB.
     Returns `None` if the user is not found.
     """
-    user_dict = fake_db.get(username)
+    # Usernames are not case-sensitive
+    user_dict = fake_db.get(username.lower())
     if not user_dict:
         return None
-    return models.DBUser(**user_dict)
+    return DBUser(**user_dict)
 
 
 def authenticate_user(fake_db: Dict[str, Dict[str, Any]], username: str, password: str):
@@ -128,7 +125,7 @@ def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
         return subject[len("username:") :]
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     """
     Dependency to get the current user from `oauth2_scheme`'s token.
     The (JWT) token is decoded, the username is extracted from its payload,
@@ -165,12 +162,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> models.User:
     # Finally return the user
     # get_user actually returns DBUser, which contains the password hash,
     # we don't want this in the public output.
-    return models.User(**user.dict())
+    return User(**user.dict())
 
 
-async def get_current_confirmed_user(
-    current_user: models.User = Depends(get_current_user),
-):
+async def get_current_confirmed_user(current_user: User = Depends(get_current_user),):
     """
     Gets the current user with `get_current_user` and raises a 400 if the gotten user
     hasn't confirmed its email address
@@ -182,17 +177,14 @@ async def get_current_confirmed_user(
     return current_user
 
 
-@api.get(
-    "/users/self",
-    response_model=models.User,
-    tags=["Authentification"],
-    summary="Get the currently logged-in user",
+@router.get(
+    "/users/self", response_model=User, summary="Get the currently logged-in user",
 )
-async def read_users_self(current_user: models.User = Depends(get_current_user),):
+async def read_users_self(current_user: User = Depends(get_current_user),):
     return current_user
 
 
-@api.post("/auth/", tags=["Authentification"])
+@router.post("/auth/", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Try to auth the user
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
@@ -211,11 +203,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return Token(access_token=access_token, token_type="bearer")
 
 
-@api.post(
+@router.post(
     "/users/",
-    response_model=models.User,
+    response_model=User,
     status_code=status.HTTP_201_CREATED,
-    tags=["Authentification"],
     summary="Create a user account",
 )
 def create_user_account(user_in: UserCreation):
@@ -228,4 +219,4 @@ def create_user_account(user_in: UserCreation):
     )
     # TODO: store it...
     # Return a regular User
-    return models.User(**db_user.dict())
+    return User(**db_user.dict())
