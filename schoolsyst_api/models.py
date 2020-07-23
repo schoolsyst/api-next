@@ -36,6 +36,10 @@ class User(Resource):
 class DBUser(User):
     password_hash: str
 
+class UserCreation(Resource):
+    username: str
+    email: EmailStr
+    password: str
 
 class OwnedResouce(Resource):
     """

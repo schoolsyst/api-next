@@ -11,6 +11,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from schoolsyst_api import models
+from schoolsyst_api.models import UserCreation
 
 fake_users_db = {
     "johndoe": {
@@ -167,3 +168,22 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     # Return the access token
     return {"access_token": access_token, "token_type": "bearer"}
+
+@api.post(
+    "/users/",
+    response_model=models.User,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Authentification"],
+    summary="Create a user account",
+)
+def create_user_account(user_in: UserCreation):
+    # Create the DBUser
+    db_user = models.DBUser(
+        joined_at=datetime.utcnow(),
+        email_is_confirmed=False,
+        password_hash=hash_password(user_in.password),
+        **user_in.dict(),
+    )
+    # TODO: store it...
+    # Return a regular User
+    return models.User(**db_user.dict())
