@@ -12,5 +12,9 @@ fmt:
 
 check-dead:
 	poetry run \
-		vulture schoolsyst_api --min-confidence 61
+		vulture schoolsyst_api
 
+prepush:
+	$(MAKE) fmt
+	$(MAKE) dependency-graph
+	exit 0
