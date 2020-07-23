@@ -102,16 +102,14 @@ def authenticate_user(fake_db: Dict[str, Dict[str, Any]], username: str, passwor
     return user
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (
-        expires_delta if expires_delta is not None else timedelta(minutes=15)
-    )
+def create_access_token(payload: dict, expires_delta: timedelta):
     """
     Creates an OAuth2 JWT access token:
     Encodes the `payload` with SECRET_KEY using JWT_SIGN_ALGORITHM,
     set the expiration timestamp `exp` to `expires_delta` in the future
     """
+    to_encode = payload.copy()
+    expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
     encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_SIGN_ALGORITHM)
     return encoded_jwt
