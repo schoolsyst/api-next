@@ -4,7 +4,7 @@ dev:
 
 dependency-graph:
 	poetry run \
-		pydeps schoolsyst_api --only schoolsyst_api -oDEPENDENCY_GRAPH.png -Tpng --rmprefix schoolsyst_api.
+		pydeps schoolsyst_api --only schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow
 
 check-dead:
 	poetry run \
@@ -14,6 +14,7 @@ requirements-txt:
 	poetry run \
 		pip freeze > requirements.txt
 
+# TODO: include make dependency-graph in pre-commit config
 prepush:
 	$(MAKE) fmt
 	$(MAKE) dependency-graph
