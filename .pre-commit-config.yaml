@@ -1,6 +1,19 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
+    - repo: https://github.com/timothycrosley/isort
+      rev: 4.3.21-2
+      hooks:
+          - id: isort
+            additional_dependencies: [toml]
+            exclude: ^.*/?setup\.py$
+            args:
+              - --multi-line=3
+              - --trailing-comma
+              - --force-grid-wrap=0
+              - --use-parentheses
+              - --line-width=88
+
     - repo: https://github.com/psf/black
       rev: stable
       hooks:
@@ -9,13 +22,10 @@ repos:
       rev: 3.7.8
       hooks:
           - id: flake8
-
-    - repo: https://github.com/timothycrosley/isort
-      rev: 4.3.21-2
-      hooks:
-          - id: isort
-            additional_dependencies: [toml]
-            exclude: ^.*/?setup\.py$
+            exclude: schoolsyst_api/auth.py # uses the walrus operator, see https://bbs.archlinux.org/viewtopic.php?id=251088
+            args:
+              - --ignore=F405,F403
+              - --max-line-length=88
 
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v2.4.0
