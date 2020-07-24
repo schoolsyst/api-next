@@ -2,8 +2,15 @@ from datetime import date, datetime, time
 from enum import Enum
 from typing import *
 
-from pydantic import (UUID4, BaseModel, EmailStr, PositiveFloat, PositiveInt,
-                      confloat, conint)
+from pydantic import (
+    UUID4,
+    BaseModel,
+    EmailStr,
+    PositiveFloat,
+    PositiveInt,
+    confloat,
+    conint,
+)
 
 Primantissa = confloat(le=1, ge=0)
 
@@ -72,7 +79,7 @@ class Settings(OwnedResouce):
     theme: ThemeName = ThemeName.auto
     """
     Configures how the year is split.
-    For example, for a student whose school works on semesters, the layout will be 
+    For example, for a student whose school works on semesters, the layout will be
     [
         {start: <start of the year>, end: <end of the first semester>},
         {start: <start of the 2nd semester, end: <end of the year>}
@@ -84,8 +91,8 @@ class Settings(OwnedResouce):
     """
     starting_week_type: WeekType = WeekType.even
     """
-    What unit is used to display grades. 
-    Note that grades are stored as floats in [0; 1], 
+    What unit is used to display grades.
+    Note that grades are stored as floats in [0; 1],
     no matter what this value is set to.
     """
     grades_unit: Union[PositiveFloat, PositiveInt]
@@ -107,10 +114,14 @@ class Subject(OwnedResouce):
 class Quiz(OwnedResouce):
     name: str
     # questions: List[Question] = []
-    tries_test: PositiveInt = 0  # Number of trials in test mode
-    tries_train: PositiveInt = 0  # Number of trials in train mode
-    tries_total: PositiveInt = 0  # Total number of trials
-    time_spent: PositiveInt = 0  # (in seconds) the total time spent on this quizz
+    # Number of trials in test mode
+    tries_test: PositiveInt = 0
+    # Number of trials in train mode
+    tries_train: PositiveInt = 0
+    # Total number of trials
+    tries_total: PositiveInt = 0
+    # (in seconds) the total time spent on this quizz
+    time_spent: PositiveInt = 0
     # sessions: List[QuizSession] = []
 
 
@@ -197,21 +208,28 @@ class EventMutationInterpretation(str, Enum):
     #### edit
 
     A simple editing of the course, while keeping it on the same day.
-    e.g. For the 2019-12-08 Physics course from 08:00 to 08:55, the room is L013 and not L453
-    
+
+    e.g. For the 2019-12-08 Physics course from 08:00 to 08:55,
+    the room is L013 and not L453
+
     #### reschedule
 
-    A rescheduling. The room and other info may also be changed for the rescheduled event.
-    e.g. The 2019-08-12 Mathematics course from 13:05 to 14:00 is moved to 2019-08-14 from 08:00 to 08:55  
-    
+    A rescheduling. The room and other info may also be changed for
+    the rescheduled event.
+
+    e.g. The 2019-08-12 Mathematics course from 13:05 to 14:00
+    is moved to 2019-08-14 from 08:00 to 08:55
+
     #### addition
 
     An exceptional course that is not part of the regular schedule.
+
     e.g. An exceptional History course will be added at 2019-07-11, from 16:45 to 18:00
-    
+
     #### deletion
 
     A removal of course, without rescheduling.
+
     e.g. The 2020-01-13 Chemistry course from 15:50 to 16:45 is cancelled
     """
 

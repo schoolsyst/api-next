@@ -9,7 +9,7 @@ release title: "{new}"
 release assets:
   - label: Python wheel
     file: dist/{package}-{new}-py3-none-any.whl
-  
+
   - label: Source code tarball
     file: dist/{package}-{new}.tar.gz
 
