@@ -231,10 +231,16 @@ class EventMutation(OwnedResouce):
     @property
     def interpretation(self) -> Optional[EventMutationInterpretation]:
         """
-        |            | added_in && deleted_in | added_in && !deleted_in | !added_in && deleted_in | !added_in && !deleted_in |
-        | ---------- | ---------------------- | ----------------------- | ----------------------- | ------------------------ |
-        | `subject`  | edit                   | `None`                  | `None`                  | `None`                   |
-        | !`subject` | reschedule             | addition                | deletion                | `None`                   |
+        when event.subject != subject
+           and added_in     and deleted_in      -> edit
+           and added_in     and notdeleted_in   -> None
+           and not added_in and deleted_in      -> None
+           and not added_in and not deleted_in  -> None
+        when event.subject == subject
+           and added_in     and deleted_in      -> reschedule
+           and added_in     and notdeleted_in   -> edit
+           and not added_in and deleted_in      -> deletion
+           and not added_in and not deleted_in  -> None
         """
         if self.subject is not None:
             if self.added_in and self.deleted_in:
