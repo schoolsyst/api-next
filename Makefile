@@ -14,6 +14,10 @@ check-dead:
 	poetry run \
 		vulture schoolsyst_api
 
+requirements-txt:
+	poetry run \
+		pip freeze > requirements.txt
+
 prepush:
 	$(MAKE) fmt
 	$(MAKE) dependency-graph
