@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "schoolsyst-api"
+name = "schoolsyst_api"
 version = "0.1.0"
 description = "schoolsyst.com's REST/GraphQL API built with FastAPI. See https://schoolsyst.com and https://dev.schoolsyst.com/docs"
 authors = ["Ewen Le Bihan <hey@ewen.works>"]
@@ -35,5 +35,5 @@ vulture = "^1.5"
 pre-commit = "^2.6.0"
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=1.0"]
 build-backend = "poetry.masonry.api"
