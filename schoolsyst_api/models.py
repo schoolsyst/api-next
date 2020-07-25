@@ -49,7 +49,7 @@ class OwnedResouce(Resource):
     Base model for resources owned by users
     """
 
-    owner: User
+    owner_id: UUID4
     updated_at: Optional[datetime] = None
     created_at: datetime = datetime.now()
 
@@ -175,7 +175,7 @@ class HomeworkType(str, Enum):
 
 class Homework(OwnedResouce):
     title: str
-    subject: Subject
+    subject_id: UUID4
     type: HomeworkType
     completed_at: datetime
     progress: Primantissa
@@ -194,7 +194,7 @@ class ISOWeekDay(int, Enum):
 
 
 class Event(OwnedResouce):
-    subject: Subject
+    subject_id: UUID4
     start: time
     end: time
     day: ISOWeekDay
@@ -240,8 +240,8 @@ class EventMutationInterpretation(str, Enum):
 
 
 class EventMutation(OwnedResouce):
-    event: Optional[Event] = None
-    subject: Optional[Subject] = None
+    event_id: Optional[UUID4] = None
+    subject_id: Optional[UUID4] = None
     deleted_in: Optional[DateRange] = None
     added_in: Optional[DateRange] = None
     room: Optional[str] = None
@@ -260,7 +260,7 @@ class EventMutation(OwnedResouce):
            and not added_in and deleted_in      -> deletion
            and not added_in and not deleted_in  -> None
         """
-        if self.subject is not None:
+        if self.subject_id is not None:
             if self.added_in and self.deleted_in:
                 return EventMutationInterpretation.edit
             return None
@@ -274,7 +274,7 @@ class EventMutation(OwnedResouce):
 
 
 class Course(OwnedResouce):
-    subject: Subject
+    subject_id: UUID4
     start: datetime
     end: datetime
     room: str
