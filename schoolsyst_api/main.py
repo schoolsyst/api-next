@@ -3,7 +3,8 @@ import toml
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from schoolsyst_api import __version__, auth, cors
+
+from . import __version__, auth, cors
 
 # Extract some vars from pyproject.toml to use with FastAPI()
 SWAGGER_UI_DOCS_URL = "/playground"
