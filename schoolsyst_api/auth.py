@@ -1,10 +1,11 @@
 import os
 from datetime import datetime, timedelta
+from smtplib import SMTP, SMTP_PORT, SMTP_SSL_PORT
 from typing import *
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -279,3 +280,39 @@ def create_user_account(user_in: UserCreation):
     # TODO: store it...
     # Return a regular User
     return User(**db_user.dict())
+
+
+def send_password_reset_email(
+    to_email: str, to_username: str, password_reset_request_token: str
+) -> bool:
+    host = SMTP("email.schoolsyst.com", SMTP_SSL_PORT, "localhost")
+    host.sendmail(
+        from_addr="reset-password@schoolsyst.com",
+        to_addrs=[to_email],
+        msg=f"""\
+From: schoolsyst password reset system <reset-password@schoolsyst.com>
+To: {to_username} <{to_email}>
+Subject: Reset your schoolsyst password
+
+Go to https://app.schoolsyst.com/reset-password/{password_reset_request_token} to reset it.
+If you didn't request a password reset, just ignore this, and your password won't be modified.
+""",
+    )
+
+
+@router.post(
+    "/users/password-reset-request",
+    summary="Start the password reset process",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def post_users_password_reset(
+    tasks: BackgroundTasks, user: User = Depends(get_current_confirmed_user)
+):
+    """
+    Sends an email to the logged-in user's email address,
+    and creates a PasswordResetRequest with a temporary token,
+    this object is destroyed at most 24 hours after this request is sent.
+    A new password can then be set with `POST /users/password-reset/`.
+    """
+    tasks.add_task()
+    return
