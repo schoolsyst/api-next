@@ -24,7 +24,7 @@ repos:
           - id: flake8
             exclude: schoolsyst_api/auth.py # uses the walrus operator, see https://bbs.archlinux.org/viewtopic.php?id=251088
             args:
-              - --ignore=F405,F403
+              - --ignore=F405,F403,W503
               - --max-line-length=88
 
     - repo: https://github.com/pre-commit/pre-commit-hooks
