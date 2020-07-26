@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "schoolsyst_api"
 version = "0.1.0"
-description = "schoolsyst.com's REST/GraphQL API built with FastAPI. See https://schoolsyst.com and https://dev.schoolsyst.com/docs"
+description = "schoolsyst.com's web API, built with FastAPI."
 authors = ["Ewen Le Bihan <hey@ewen.works>"]
 license = "AGPL-3.0-only"
 repository = "https://github.com/schoolsyst/api-next"
