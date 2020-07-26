@@ -2,11 +2,13 @@ language: python
 python:
   - '3.7'
 
-services:
-  - docker
-
 before_install:
-  - docker-compose build
+  - touch .env
+  - echo -ne "SECRET_KEY=\"$SECRET_KEY\"\n" >> .env
+  - pip install 'poetry>=1.0'
+
+install:
+  - poetry install
 
 script:
-  - docker container run api-next_api make test
+  - make test
