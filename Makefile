@@ -17,7 +17,7 @@ test:
 	poetry run \
 		python -m doctest schoolsyst_api/*.py \
 	&& poetry run \
-		pytest
+		pytest --cov=schoolsyst_api tests/
 
 # TODO: include make dependency-graph in pre-commit config
 prepush:
