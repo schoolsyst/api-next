@@ -10,9 +10,8 @@ check-dead:
 	poetry run \
 		vulture schoolsyst_api
 
-requirements-txt:
-	poetry run \
-		pip freeze > requirements.txt
+requirements.txt:
+	poetry export -f requirements.txt > requirements.txt
 
 test:
 	poetry run \
