@@ -14,6 +14,10 @@ requirements-txt:
 	poetry run \
 		pip freeze > requirements.txt
 
+test:
+	poetry run \
+		python -m doctest **.py
+
 # TODO: include make dependency-graph in pre-commit config
 prepush:
 	$(MAKE) fmt
