@@ -33,6 +33,7 @@ rope = "^0.17.0"
 ptpython = "^3.0.3"
 vulture = "^1.5"
 pre-commit = "^2.6.0"
+pytest = "^5.4.3"
 
 [build-system]
 requires = ["poetry>=1.0"]
