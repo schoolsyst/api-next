@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
-from smtplib import SMTP, SMTP_PORT, SMTP_SSL_PORT
+from os import stat
+from smtplib import SMTP, SMTP_SSL_PORT
 from typing import *
 from uuid import uuid4
 
@@ -8,8 +9,9 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
+from parse import parse
 from passlib.context import CryptContext
-from pydantic import BaseModel, EmailStr
+from pydantic import UUID4, BaseModel, EmailStr
 from schoolsyst_api.models import DBUser, User, UserCreation
 
 router = APIRouter()
@@ -28,7 +30,7 @@ fake_users_db = {
         "joined_at": datetime.now(),
         "username": "alice",
         "email": "alice@example.com",
-        "password_hash": "$argon2id$v=19$m=102400,t=2,p=8$FQJgLCVEKMU4R6i1tlbqXQ$A9GkJWjats+p11hO/l17Mg",
+        "password_hash": "$argon2id$v=19$m=102400,t=2,p=8$8J5TKqUUIuT8f885J2Rs7Q$iCk+iO81x9OzuR7bTAJrTw",
         "email_is_confirmed": True,
     },
 }
@@ -36,7 +38,12 @@ fake_users_db = {
 load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_SIGN_ALGORITHM = "HS256"
+JWT_SUB_FORMATS = {
+    "user": "username:{}",
+    "password reset": "password-reset:{}",
+}
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+PASSWORD_REQUEST_TOKEN_EXPIRE_MINUTES = 30
 
 
 class Token(BaseModel):
@@ -133,7 +140,10 @@ def create_access_token(payload: dict, expires_delta: timedelta):
     Encodes the `payload` with SECRET_KEY using JWT_SIGN_ALGORITHM,
     set the expiration timestamp `exp` to `expires_delta` in the future
 
-    >>> create_access_token({"sub": "cruise"}, timedelta(seconds=50)).startswith('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
+    >>> create_access_token(
+    ...     {"sub": "cruise"},
+    ...     timedelta(seconds=50)
+    ... ).startswith('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
     True
     """
     key = os.getenv("SECRET_KEY")
@@ -161,11 +171,9 @@ def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
     """
     if (subject := payload.get("sub")) is None:
         return None
-    if not subject.startswith("username:"):
+    if (username := parse(JWT_SUB_FORMATS["user"], subject)) is None:
         return None
-    else:
-        # Damn, if only str.removeprefix was in py3.8... gotta wait for py3.9
-        return subject[len("username:") :]
+    return username[0]
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
@@ -193,6 +201,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         if username is None:
             raise credentials_exception
         # Store the token data here (in case we have more data to store in the playload)
+        print("./schoolsyst_api/auth.py:204 => username")
+        print("\t" + repr(username))
         token_data = TokenData(username=username)
     except JWTError:
         # If any kind of JWT-related error happened
@@ -282,37 +292,138 @@ def create_user_account(user_in: UserCreation):
     return User(**db_user.dict())
 
 
+class PasswordResetRequest(BaseModel):
+    created_at: datetime
+    token: str
+    emitted_by_id: UUID4
+
+
+def create_password_reset_request_token(
+    username: str, request_valid_for: timedelta
+) -> str:
+    return jwt.encode(
+        {
+            "sub": JWT_SUB_FORMATS["password reset"].format(username),
+            "exp": datetime.utcnow() + request_valid_for,
+        },
+        SECRET_KEY,
+        algorithm=JWT_SIGN_ALGORITHM,
+    )
+
+
 def send_password_reset_email(
     to_email: str, to_username: str, password_reset_request_token: str
 ) -> bool:
-    host = SMTP("email.schoolsyst.com", SMTP_SSL_PORT, "localhost")
-    host.sendmail(
-        from_addr="reset-password@schoolsyst.com",
-        to_addrs=[to_email],
-        msg=f"""\
+    email = f"""\
 From: schoolsyst password reset system <reset-password@schoolsyst.com>
 To: {to_username} <{to_email}>
 Subject: Reset your schoolsyst password
 
 Go to https://app.schoolsyst.com/reset-password/{password_reset_request_token} to reset it.
 If you didn't request a password reset, just ignore this, and your password won't be modified.
-""",
-    )
+"""
+    print("[fake] sending email:")
+    print("---")
+    print(email)
+    print("---")
+    # host = SMTP("email.schoolsyst.com", SMTP_SSL_PORT, "localhost")
+    # host.sendmail(
+    #     from_addr="reset-password@schoolsyst.com",
+    #     to_addrs=[to_email],
+    #     msg=email,
+    # )
+    return True
 
 
 @router.post(
     "/users/password-reset-request",
     summary="Start the password reset process",
+    description=f"""
+Sends an email to the logged-in user's email address,
+and creates a `PasswordResetRequest` with a temporary token,
+A new password can then be set with `POST /users/password-reset/`.
+
+The token is considered expired {PASSWORD_REQUEST_TOKEN_EXPIRE_MINUTES} minutes after creation,
+and the `PasswordResetRequest` is destroyed once an associated
+`POST /users/password-reset` is made.
+
+In other words, the request is valid for up to {PASSWORD_REQUEST_TOKEN_EXPIRE_MINUTES} minutes,
+and can only be used once.
+    """.strip(),
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def post_users_password_reset(
+async def post_users_password_reset_request(
     tasks: BackgroundTasks, user: User = Depends(get_current_confirmed_user)
 ):
+    # create a request
+    request = PasswordResetRequest(
+        created_at=datetime.utcnow(),
+        emitted_by_id=user.uuid,
+        token=create_password_reset_request_token(
+            user.username,
+            request_valid_for=timedelta(minutes=PASSWORD_REQUEST_TOKEN_EXPIRE_MINUTES),
+        ),
+    )
+    # send an email
+    tasks.add_task(send_password_reset_email, user.email, user.username, request.token)
+    return
+
+
+class PasswordReset(BaseModel):
+    request_token: str
+    new_password: str
+
+
+post_users_password_reset_responses = {
+    403: {
+        "description": "The token is either corrupted, emitted by another user or expired"
+    }
+}
+
+
+@router.post(
+    "/users/password-reset",
+    summary="Reset a password",
+    responses=post_users_password_reset_responses,
+)
+async def post_users_password_reset(
+    change_data: PasswordReset, user: User = Depends(get_current_confirmed_user),
+):
     """
-    Sends an email to the logged-in user's email address,
-    and creates a PasswordResetRequest with a temporary token,
-    this object is destroyed at most 24 hours after this request is sent.
-    A new password can then be set with `POST /users/password-reset/`.
+    Changes the password given a `request_token`.
+
+    The `request_token` is a token sent to the user's email address as a link
+    (something like `https://app.schoolsyst.com/password-reset/{request_token}`) after
+    performing a `POST /users/password-reset-request`.
     """
-    tasks.add_task()
+    http_error = HTTPException(
+        status.HTTP_403_FORBIDDEN,
+        detail=post_users_password_reset_responses[403]["description"],
+    )
+    # check if change_data.request_token actually exists
+    password_reset_requests: List[PasswordResetRequest] = []
+    matching_requests = [
+        r for r in password_reset_requests if r.token == change_data.request_token
+    ]
+    # duplicate tokens should never occur, but, just in case, we consider the token as "not found"
+    if not matching_requests or len(matching_requests) > 1:
+        raise http_error
+    # check if its associated with the current user
+    matching_request = matching_requests[0]
+    if matching_request.emitted_by_id != user.uuid:
+        raise http_error
+    # check if the token isn't expired
+    try:
+        token_payload = jwt.decode(
+            matching_requests.token, SECRET_KEY, algorithms=[JWT_SIGN_ALGORITHM]
+        )
+        expiration_datetime = datetime.fromtimestamp(token_payload.get("exp"))
+        expired = expiration_datetime < datetime.now()
+    except JWTError:
+        raise http_error
+    except KeyError:
+        raise http_error
+    if expired:
+        raise http_error
+    # change the password
     return
