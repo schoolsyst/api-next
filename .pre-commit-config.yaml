@@ -40,4 +40,3 @@ repos:
           - id: mixed-line-ending
             args:
               - --fix=lf
-          - id: requirements-txt-fixer
