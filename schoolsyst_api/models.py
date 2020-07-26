@@ -249,16 +249,90 @@ class EventMutation(OwnedResouce):
     @property
     def interpretation(self) -> Optional[EventMutationInterpretation]:
         """
-        when event.subject != subject
+        if subject_id
            and added_in     and deleted_in      -> edit
-           and added_in     and notdeleted_in   -> None
+           and added_in     and not deleted_in  -> None
            and not added_in and deleted_in      -> None
            and not added_in and not deleted_in  -> None
-        when event.subject == subject
+        else
            and added_in     and deleted_in      -> reschedule
            and added_in     and notdeleted_in   -> edit
            and not added_in and deleted_in      -> deletion
            and not added_in and not deleted_in  -> None
+
+        >>> from uuid import uuid4
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     subject_id=uuid4(),
+        ...     added_in=DateRange(
+        ...         start=date(2020, 5, 4),
+        ...         end=date(2020, 6, 4)
+        ...     ),
+        ...     deleted_in=DateRange(
+        ...         start=date(2020, 4, 4),
+        ...         end=date(2020, 5, 3)
+        ...     )
+        ... ).interpretation.value
+        'edit'
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     subject_id=uuid4(),
+        ...     added_in=DateRange(
+        ...         start=date(2020, 5, 4),
+        ...         end=date(2020, 6, 4)
+        ...     ),
+        ... ).interpretation
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     subject_id=uuid4(),
+        ...     deleted_in=DateRange(
+        ...         start=date(2020, 4, 4),
+        ...         end=date(2020, 5, 3)
+        ...     )
+        ... ).interpretation
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     subject_id=uuid4(),
+        ... ).interpretation
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     added_in=DateRange(
+        ...         start=date(2020, 5, 4),
+        ...         end=date(2020, 6, 4)
+        ...     ),
+        ...     deleted_in=DateRange(
+        ...         start=date(2020, 4, 4),
+        ...         end=date(2020, 5, 3)
+        ...     )
+        ... ).interpretation.value
+        'reschedule'
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     added_in=DateRange(
+        ...         start=date(2020, 5, 4),
+        ...         end=date(2020, 6, 4)
+        ...     ),
+        ... ).interpretation.value
+        'addition'
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ...     deleted_in=DateRange(
+        ...         start=date(2020, 4, 4),
+        ...         end=date(2020, 5, 3)
+        ...     )
+        ... ).interpretation.value
+        'deletion'
+        >>> EventMutation(
+        ...     uuid=uuid4(),
+        ...     owner_id=uuid4(),
+        ... ).interpretation
         """
         if self.subject_id is not None:
             if self.added_in and self.deleted_in:
