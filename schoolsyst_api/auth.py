@@ -337,7 +337,7 @@ If you didn't request a password reset, just ignore this, and your password won'
 
 @router.post(
     "/users/password-reset-request",
-    summary="Start the password reset process",
+    summary="Request a password reset",
     description=f"""
 Sends an email to the logged-in user's email address,
 and creates a `PasswordResetRequest` with a temporary token,
