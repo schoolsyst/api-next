@@ -201,7 +201,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         if username is None:
             raise credentials_exception
         # Store the token data here (in case we have more data to store in the playload)
-        print("./schoolsyst_api/auth.py:204 => username")
+        print("./schoolsyst_api/users.py:204 => username")
         print("\t" + repr(username))
         token_data = TokenData(username=username)
     except JWTError:
