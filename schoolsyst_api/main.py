@@ -1,24 +1,20 @@
-import toml
-
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from schoolsyst_api import __version__, cors, users
+from schoolsyst_api import __version__, cors, docs, users
 
-# Extract some vars from pyproject.toml to use with FastAPI()
-SWAGGER_UI_DOCS_URL = "/playground"
-pyproject = toml.load(open("pyproject.toml"))
+# It all begins here!
 api = FastAPI(
     version=__version__,
     title="schoolsyst",
-    description=pyproject["tool"]["poetry"]["description"]
-    + "\n\nInteractive (SwaggerUI) documentation at "
-    + f"[{SWAGGER_UI_DOCS_URL}]({SWAGGER_UI_DOCS_URL})",
+    description=docs.description,
+    docs_url=docs.docs_urls["swagger"],
+    redoc_url=docs.docs_urls["redoc"],
     default_response_class=ORJSONResponse,
-    docs_url=SWAGGER_UI_DOCS_URL,
-    redoc_url="/",
 )
+# Handle CORS
 api.add_middleware(**cors.middleware_params)
+# Include routes
 api.include_router(users.router, tags=["Users"])
 
 if __name__ == "__main__":
