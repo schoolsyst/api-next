@@ -25,7 +25,7 @@ python-jose = {extras = ["cryptography"], version = "^3.1.0"}
 toml = "^0.10.1"
 orjson = "^3.2.2"
 parse = "^1.16.0"
-arango = "^0.2.1"
+python-arango = "^5.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
