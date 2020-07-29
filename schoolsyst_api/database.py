@@ -4,16 +4,43 @@ import arango.database
 from arango import ArangoClient
 from dotenv import load_dotenv
 
+# Different collections stored in the 'schoolsyst' standard database
+COLLECTIONS = [
+    "subjects",
+    "users",
+    "settings",
+    "subjects",
+    "quizzes",
+    "notes",
+    "grades",
+    "homework",
+    "events",
+    "event_mutations",
+]
+
+
+def create_collection_if_missing(
+    database: arango.database.StandardDatabase, collection_name: str
+):
+    if not database.has_collection(collection_name):
+        database.create_collection(collection_name)
+
 
 def initialize() -> arango.database.StandardDatabase:
     load_dotenv(".env")
+    print("[PERF] Initializing database")
     client = ArangoClient(hosts=os.getenv("ARANGO_HOST", "http://localhost:8529"))
-    db = client.db(
-        os.getenv("ARANGO_DB_NAME", "schoolsyst"),
-        username=os.getenv("ARANGO_USERNAME"),
-        password=os.getenv("ARANGO_PASSWORD"),
+    username, password = os.getenv("ARANGO_USERNAME"), os.getenv("ARANGO_PASSWORD")
+    sys_db = client.db(
+        name="_system", username=username, password=password, verify=True
     )
-    if not db.has_database("schoolsyst"):
-        db.create_database("schoolsyst")
 
-    return db
+    if not sys_db.has_database(os.getenv("ARANGO_DB_NAME")):
+        sys_db.create_database(os.getenv("ARANGO_DB_NAME"))
+
+    for c in COLLECTIONS:
+        create_collection_if_missing(sys_db, c)
+
+    print(sys_db.collection("users").get("bob"))
+
+    return sys_db

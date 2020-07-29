@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from schoolsyst_api import __version__, cors, docs, users
+from schoolsyst_api import __version__, cors, database, docs, users
 
 # It all begins here!
 api = FastAPI(
@@ -12,6 +12,8 @@ api = FastAPI(
     redoc_url=docs.docs_urls["redoc"],
     default_response_class=ORJSONResponse,
 )
+# Initialize the database
+api.add_event_handler("startup", database.initialize)
 # Handle CORS
 api.add_middleware(**cors.middleware_params)
 # Include routes

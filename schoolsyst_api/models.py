@@ -20,7 +20,7 @@ class Resource(BaseModel):
     Base model for any resource (contains a UUID)
     """
 
-    uuid: UUID4
+    _key: UUID4
 
 
 class User(Resource):

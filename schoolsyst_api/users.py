@@ -5,6 +5,7 @@ from smtplib import SMTP, SMTP_SSL_PORT
 from typing import *
 from uuid import uuid4
 
+from arango.database import StandardDatabase
 from dotenv import load_dotenv
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -12,6 +13,7 @@ from jose import JWTError, jwt
 from parse import parse
 from passlib.context import CryptContext
 from pydantic import UUID4, BaseModel, EmailStr
+from schoolsyst_api import database
 from schoolsyst_api.models import DBUser, User, UserCreation
 
 router = APIRouter()
@@ -94,39 +96,39 @@ def hash_password(plain_password: str) -> str:
     return password_context.hash(plain_password)
 
 
-def get_user(fake_db: Dict[str, Dict[str, Any]], username: str) -> Optional[DBUser]:
+def get_user(db: StandardDatabase, username: str) -> Optional[DBUser]:
     """
     Get a user by username from the DB.
     Returns `None` if the user is not found.
     """
     # Usernames are not case-sensitive
-    user_dict = fake_db.get(username.lower())
+    user_dict = db.collection("users").get(username)
     if not user_dict:
         return None
     return DBUser(**user_dict)
 
 
-def is_username_taken(fake_db: Dict[str, Dict[str, Any]], username: str) -> bool:
+def is_username_taken(db: StandardDatabase, username: str) -> bool:
     """
     Checks if the given username is already taken
     """
-    return get_user(fake_db, username) is not None
+    return get_user(db, username) is not None
 
 
-def is_email_taken(fake_db: Dict[str, Dict[str, Any]], email: EmailStr) -> bool:
+def is_email_taken(db: StandardDatabase, email: EmailStr) -> bool:
     """
     Checks if the given email is already taken
     """
-    emails = [u["email"] for _, u in fake_db.items()]
+    emails = [u["email"] for _, u in db.collection("users").all()]
     return email in emails
 
 
-def authenticate_user(fake_db: Dict[str, Dict[str, Any]], username: str, password: str):
+def authenticate_user(db: StandardDatabase, username: str, password: str):
     """
     Tries to authentificate the user with `username` and `password`.
     Returns `False` if the password is incorrect or if the user is not found.
     """
-    user = get_user(fake_db, username)
+    user = get_user(db, username)
     if not user:
         return False
     if not verify_password(password, user.password_hash):
@@ -187,6 +189,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     A 401 Unauthorized exception is automatically raised if any problem arises
     during token decoding or user lookup
     """
+    db = database.initialize()
     # exception used everytime an error is encountered during verification
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -208,7 +211,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         # If any kind of JWT-related error happened
         raise credentials_exception
     # Get the user from the database. At this step token_data.username is not None.
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(db, username=token_data.username)
     # If the token's payload refers to an unknown user
     if user is None:
         raise credentials_exception
@@ -233,7 +236,7 @@ async def get_current_confirmed_user(current_user: User = Depends(get_current_us
 @router.get(
     "/users/self", response_model=User, summary="Get the currently logged-in user",
 )
-async def read_users_self(current_user: User = Depends(get_current_user),):
+async def read_users_self(current_user: User = Depends(get_current_user)):
     return current_user
 
 
@@ -262,32 +265,34 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     status_code=status.HTTP_201_CREATED,
     summary="Create a user account",
 )
-def create_user_account(user_in: UserCreation):
+def create_user_account(
+    user_in: UserCreation, db: StandardDatabase = Depends(database.initialize)
+):
     """
     Create a user account.
     Emails and usernames are unique, usernames are _not_ case-sensitive
     """
     # Check if the username is not already taken
-    if is_username_taken(fake_users_db, user_in.username):
+    if is_username_taken(db, user_in.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This username is already taken",
         )
     # Check if the email is not already taken
-    if is_email_taken(fake_users_db, user_in.email):
+    if is_email_taken(db, user_in.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This email is already taken",
         )
     # Create the DBUser
     db_user = DBUser(
-        uuid=uuid4(),
+        _key=uuid4(),
         joined_at=datetime.utcnow(),
         email_is_confirmed=False,
         password_hash=hash_password(user_in.password),
         **user_in.dict(),
     )
-    # TODO: store it...
+    db.collection("users").insert(db_user.json())
     # Return a regular User
     return User(**db_user.dict())
 
