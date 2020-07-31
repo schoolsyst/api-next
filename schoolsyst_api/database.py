@@ -26,14 +26,18 @@ def create_collection_if_missing(
         database.create_collection(collection_name)
 
 
+def create_indexes(
+    db: arango.database.StandardDatabase,
+) -> arango.database.StandardDatabase:
+    # Users
+    db.collection("users").add_persistent_index(fields=["emails", "username"])
+    return db
+
+
 def initialize() -> arango.database.StandardDatabase:
     load_dotenv(".env")
     print("[PERF] Initializing database")
-    client = ArangoClient(hosts=os.getenv("ARANGO_HOST", "http://localhost:8529"))
-    username, password = os.getenv("ARANGO_USERNAME"), os.getenv("ARANGO_PASSWORD")
-    sys_db = client.db(
-        name="_system", username=username, password=password, verify=True
-    )
+    sys_db = get()
 
     if not sys_db.has_database(os.getenv("ARANGO_DB_NAME")):
         sys_db.create_database(os.getenv("ARANGO_DB_NAME"))
@@ -41,6 +45,17 @@ def initialize() -> arango.database.StandardDatabase:
     for c in COLLECTIONS:
         create_collection_if_missing(sys_db, c)
 
-    print(sys_db.collection("users").get("bob"))
+    sys_db = create_indexes(sys_db)
+
+    return sys_db
+
+
+def get() -> arango.database.StandardDatabase:
+    print("[PERF] Logging into the database")
+    client = ArangoClient(hosts=os.getenv("ARANGO_HOST", "http://localhost:8529"))
+    username, password = os.getenv("ARANGO_USERNAME"), os.getenv("ARANGO_PASSWORD")
+    sys_db = client.db(
+        name="_system", username=username, password=password, verify=True
+    )
 
     return sys_db

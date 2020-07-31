@@ -171,7 +171,9 @@ def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
     return username[0]
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: StandardDatabase = Depends(database.get)
+) -> User:
     """
     Dependency to get the current user from `oauth2_scheme`'s token.
     The (JWT) token is decoded, the username is extracted from its payload,
@@ -182,7 +184,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     A 401 Unauthorized exception is automatically raised if any problem arises
     during token decoding or user lookup
     """
-    db = database.initialize()
     # exception used everytime an error is encountered during verification
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -234,9 +235,11 @@ async def read_users_self(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/auth/", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: StandardDatabase = Depends(database.get),
+):
     # Try to auth the user
-    db = database.initialize()
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -270,7 +273,7 @@ post_users_error_responses = {
     responses=post_users_error_responses,
 )
 def create_user_account(
-    user_in: UserCreation, db: StandardDatabase = Depends(database.initialize)
+    user_in: UserCreation, db: StandardDatabase = Depends(database.get)
 ):
     """
     Create a user account.
