@@ -3,15 +3,15 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-VERSION=3.3.1
+VERSION=3.6.5
 NAME=ArangoDB-$VERSION
 
 if [ ! -d "$DIR/$NAME" ]; then
   # download ArangoDB
-  echo "curl -s -L http://www.arangodb.org/repositories/travisCI/$NAME.tar.gz -o $NAME.tar.gz"
-  curl -s -L http://www.arangodb.org/repositories/travisCI/$NAME.tar.gz -o $NAME.tar.gz
-  echo "tar zxf $NAME.tar.gz"
-  tar zvxf $NAME.tar.gz
+  echo "curl -s -L https://download.arangodb.com/arangodb36/Community/Linux/arangodb3_3.6.5-1_amd64.deb -o $NAME.deb"
+  curl -s -L https://download.arangodb.com/arangodb36/Community/Linux/arangodb3_3.6.5-1_amd64.deb -o $NAME.deb
+  echo "tar zxf $NAME.deb"
+  tar zvxf $NAME.deb
 fi
 
 ARCH=$(arch)
