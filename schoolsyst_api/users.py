@@ -258,11 +258,19 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return Token(access_token=access_token, token_type="bearer")
 
 
+post_users_error_responses = {
+    400: {
+        "description": "This username is already taken | This email is already taken."
+    }
+}
+
+
 @router.post(
     "/users/",
     response_model=User,
     status_code=status.HTTP_201_CREATED,
     summary="Create a user account",
+    responses=post_users_error_responses,
 )
 def create_user_account(
     user_in: UserCreation, db: StandardDatabase = Depends(database.initialize)
