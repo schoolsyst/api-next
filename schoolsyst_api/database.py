@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import arango.database
 from arango import ArangoClient
@@ -34,28 +35,42 @@ def create_indexes(
     return db
 
 
-def initialize() -> arango.database.StandardDatabase:
-    load_dotenv(".env")
-    print("[PERF] Initializing database")
-    sys_db = get()
+def _get_default_name():
+    if os.getenv("TESTING"):
+        return os.getenv("CURRENT_MOCK_DB_NAME")
+    else:
+        return "schoolsyst"
 
-    if not sys_db.has_database(os.getenv("ARANGO_DB_NAME")):
-        sys_db.create_database(os.getenv("ARANGO_DB_NAME"))
+
+def initialize(database_name: Optional[str] = None) -> arango.database.StandardDatabase:
+    load_dotenv(".env")
+    database_name = database_name or _get_default_name()
+
+    print(f"[ DB ] Initializing database {database_name}")
+
+    sys_db = get("_system")
+
+    if not sys_db.has_database(database_name):
+        sys_db.create_database(database_name)
+
+    db = get(database_name)
 
     for c in COLLECTIONS:
-        create_collection_if_missing(sys_db, c)
+        create_collection_if_missing(db, c)
 
-    sys_db = create_indexes(sys_db)
+    db = create_indexes(db)
 
-    return sys_db
+    return db
 
 
-def get() -> arango.database.StandardDatabase:
-    print("[PERF] Logging into the database")
+def get(database_name: Optional[str] = None) -> arango.database.StandardDatabase:
+    database_name = database_name or _get_default_name()
+    print(f"[ DB ] Logging into database {database_name}")
+
     client = ArangoClient(hosts=os.getenv("ARANGO_HOST", "http://localhost:8529"))
     username, password = os.getenv("ARANGO_USERNAME"), os.getenv("ARANGO_PASSWORD")
-    sys_db = client.db(
-        name="_system", username=username, password=password, verify=True
+    db = client.db(
+        name=database_name, username=username, password=password, verify=True
     )
 
-    return sys_db
+    return db
