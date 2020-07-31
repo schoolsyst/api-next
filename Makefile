@@ -1,10 +1,10 @@
-.PHONY: requirements.txt
+.PHONY: requirements.txt, DEPENDENCY_GRAPH.png
 
 dev:
 	poetry run \
 		uvicorn schoolsyst_api.main:api --reload
 
-dependency-graph:
+DEPENDENCY_GRAPH.png:
 	poetry run \
 		pydeps schoolsyst_api --only schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow
 
