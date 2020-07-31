@@ -18,25 +18,6 @@ from schoolsyst_api.models import DBUser, User, UserCreation
 
 router = APIRouter()
 
-fake_users_db = {
-    "johndoe": {
-        "uuid": uuid4(),
-        "joined_at": datetime.now(),
-        "username": "johndoe",
-        "email": "johndoe@example.com",
-        "password_hash": "$argon2id$v=19$m=102400,t=2,p=8$JQTg/B/jvJeSkhKCEKLUug$u28ihCrLS7tAXAhV7KWRoQ",
-        "email_is_confirmed": False,
-    },
-    "alice": {
-        "uuid": uuid4(),
-        "joined_at": datetime.now(),
-        "username": "alice",
-        "email": "alice@example.com",
-        "password_hash": "$argon2id$v=19$m=102400,t=2,p=8$8J5TKqUUIuT8f885J2Rs7Q$iCk+iO81x9OzuR7bTAJrTw",
-        "email_is_confirmed": True,
-    },
-}
-
 load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_SIGN_ALGORITHM = "HS256"
