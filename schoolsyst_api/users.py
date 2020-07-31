@@ -217,7 +217,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     # Finally return the user
     # get_user actually returns DBUser, which contains the password hash,
     # we don't want this in the public output.
-    return User(**user.dict())
+    return User(**user.dict(by_alias=True))
 
 
 async def get_current_confirmed_user(current_user: User = Depends(get_current_user),):
