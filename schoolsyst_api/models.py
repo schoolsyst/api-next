@@ -6,6 +6,7 @@ from pydantic import (
     UUID4,
     BaseModel,
     EmailStr,
+    Field,
     PositiveFloat,
     PositiveInt,
     confloat,
@@ -20,7 +21,7 @@ class Resource(BaseModel):
     Base model for any resource (contains a UUID)
     """
 
-    _key: UUID4
+    key: UUID4 = Field(..., alias="_key")
 
 
 class User(Resource):

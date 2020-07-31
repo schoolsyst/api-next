@@ -112,15 +112,14 @@ def is_username_taken(db: StandardDatabase, username: str) -> bool:
     """
     Checks if the given username is already taken
     """
-    return get_user(db, username) is not None
+    return db.collection("users").find({"username": username}).count() > 0
 
 
 def is_email_taken(db: StandardDatabase, email: EmailStr) -> bool:
     """
     Checks if the given email is already taken
     """
-    emails = [u["email"] for _, u in db.collection("users").all()]
-    return email in emails
+    return db.collection("users").find({"email": email}).count() > 0
 
 
 def authenticate_user(db: StandardDatabase, username: str, password: str):
@@ -292,9 +291,9 @@ def create_user_account(
         password_hash=hash_password(user_in.password),
         **user_in.dict(),
     )
-    db.collection("users").insert(db_user.json())
+    db.collection("users").insert(db_user.json(by_alias=True))
     # Return a regular User
-    return User(**db_user.dict())
+    return User(**db_user.dict(by_alias=True))
 
 
 class PasswordResetRequest(BaseModel):
