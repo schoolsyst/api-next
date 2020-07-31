@@ -26,6 +26,7 @@ toml = "^0.10.1"
 orjson = "^3.2.2"
 parse = "^1.16.0"
 python-arango = "^5.4.0"
+zxcvbn = "^4.4.28"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"

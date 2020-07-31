@@ -49,13 +49,10 @@ version = "2.4.2"
 
 [package.dependencies]
 lazy-object-proxy = ">=1.4.0,<1.5.0"
-six = ">=1.12,<2.0"
-wrapt = ">=1.11,<2.0"
 
 [[package]]
 category = "dev"
 description = "Atomic file writes."
-marker = "sys_platform == \"win32\""
 name = "atomicwrites"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
@@ -141,7 +138,6 @@ version = "7.1.2"
 [[package]]
 category = "dev"
 description = "Cross-platform colored terminal text."
-marker = "sys_platform == \"win32\""
 name = "colorama"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
@@ -314,7 +310,6 @@ version = "0.9.0"
 [[package]]
 category = "main"
 description = "A collection of framework independent HTTP protocol utils."
-marker = "sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\""
 name = "httptools"
 optional = false
 python-versions = "*"
@@ -481,9 +476,7 @@ python-versions = "*"
 version = "1.7.2"
 
 [package.dependencies]
-[package.dependencies.argon2-cffi]
-optional = true
-version = ">=18.2.0"
+argon2-cffi = {version = ">=18.2.0", optional = true, markers = "extra == \"argon2\""}
 
 [package.extras]
 argon2 = ["argon2-cffi (>=18.2.0)"]
@@ -634,10 +627,10 @@ version = "2.5.3"
 
 [package.dependencies]
 astroid = ">=2.4.0,<=2.5"
-colorama = "*"
 isort = ">=4.2.5,<5"
 mccabe = ">=0.6,<0.7"
 toml = ">=0.7.1"
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
 
 [[package]]
 category = "dev"
@@ -656,14 +649,14 @@ python-versions = ">=3.5"
 version = "5.4.3"
 
 [package.dependencies]
-atomicwrites = ">=1.0"
 attrs = ">=17.4.0"
-colorama = "*"
 more-itertools = ">=4.0.0"
 packaging = "*"
 pluggy = ">=0.12,<1.0"
 py = ">=1.5.0"
 wcwidth = "*"
+atomicwrites = {version = ">=1.0", markers = "sys_platform == \"win32\""}
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
 checkqa-mypy = ["mypy (v0.761)"]
@@ -721,10 +714,7 @@ ecdsa = "<1.0"
 pyasn1 = "*"
 rsa = "*"
 six = "<2.0"
-
-[package.dependencies.cryptography]
-optional = true
-version = "*"
+cryptography = {version = "*", optional = true, markers = "extra == \"cryptography\""}
 
 [package.extras]
 cryptography = ["cryptography"]
@@ -895,9 +885,9 @@ version = "0.11.6"
 [package.dependencies]
 click = ">=7.0.0,<8.0.0"
 h11 = ">=0.8,<0.10"
-httptools = ">=0.1.0,<0.2.0"
-uvloop = ">=0.14.0"
 websockets = ">=8.0.0,<9.0.0"
+httptools = {version = ">=0.1.0,<0.2.0", markers = "sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\""}
+uvloop = {version = ">=0.14.0", markers = "sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\""}
 
 [package.extras]
 watchgodreload = ["watchgod (>=0.6,<0.7)"]
@@ -905,7 +895,6 @@ watchgodreload = ["watchgod (>=0.6,<0.7)"]
 [[package]]
 category = "main"
 description = "Fast implementation of asyncio event loop on top of libuv"
-marker = "sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\""
 name = "uvloop"
 optional = false
 python-versions = "*"
@@ -954,16 +943,16 @@ python-versions = ">=3.6.1"
 version = "8.1"
 
 [[package]]
-category = "dev"
-description = "Module for decorators, wrappers and monkey patching."
-name = "wrapt"
+category = "main"
+description = ""
+name = "zxcvbn"
 optional = false
 python-versions = "*"
-version = "1.12.1"
+version = "4.4.28"
 
 [metadata]
-content-hash = "386400773661bab3fdde60b40c880c2cd5ad036c98a3c036416664d13fbb7b33"
-lock-version = "1.0"
+content-hash = "fd4541d4c0bb00627c89e9ad3e0a73261f1138e9c016417561d906051c017fab"
+lock-version = "1.1"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -1569,6 +1558,6 @@ websockets = [
     {file = "websockets-8.1-cp38-cp38-win_amd64.whl", hash = "sha256:f8a7bff6e8664afc4e6c28b983845c5bc14965030e3fb98789734d416af77c4b"},
     {file = "websockets-8.1.tar.gz", hash = "sha256:5c65d2da8c6bce0fca2528f69f44b2f977e06954c8512a952222cea50dad430f"},
 ]
-wrapt = [
-    {file = "wrapt-1.12.1.tar.gz", hash = "sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"},
+zxcvbn = [
+    {file = "zxcvbn-4.4.28.tar.gz", hash = "sha256:151bd816817e645e9064c354b13544f85137ea3320ca3be1fb6873ea75ef7dc1"},
 ]
