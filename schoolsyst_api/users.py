@@ -84,10 +84,10 @@ def get_user(db: StandardDatabase, username: str) -> Optional[DBUser]:
     Returns `None` if the user is not found.
     """
     # Usernames are not case-sensitive
-    user_dict = db.collection("users").get(username)
+    user_dict = db.collection("users").find({"username": username}).batch()
     if not user_dict:
         return None
-    return DBUser(**user_dict)
+    return DBUser(**user_dict[0])
 
 
 def is_password_strong_enough(password_analysis: Dict[str, Any]) -> bool:
