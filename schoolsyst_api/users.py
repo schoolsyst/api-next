@@ -15,6 +15,7 @@ from passlib.context import CryptContext
 from pydantic import UUID4, BaseModel, EmailStr
 from schoolsyst_api import database
 from schoolsyst_api.models import DBUser, User, UserCreation
+from zxcvbn import zxcvbn
 
 router = APIRouter()
 
@@ -87,6 +88,18 @@ def get_user(db: StandardDatabase, username: str) -> Optional[DBUser]:
     if not user_dict:
         return None
     return DBUser(**user_dict)
+
+
+def is_password_strong_enough(password_analysis: Dict[str, Any]) -> bool:
+    return password_analysis["score"] >= 2
+
+
+def analyze_password(
+    password: str, username: str, email: str
+) -> Optional[Dict[str, Any]]:
+    if not all((type(p) is str for p in (password, email, username))):
+        return None
+    return zxcvbn(password, [email, username])
 
 
 def is_username_taken(db: StandardDatabase, username: str) -> bool:
@@ -223,7 +236,8 @@ async def read_users_self(current_user: User = Depends(get_current_user)):
 @router.post("/auth/", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Try to auth the user
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    db = database.initialize()
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -241,7 +255,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 post_users_error_responses = {
     400: {
-        "description": "This username is already taken | This email is already taken."
+        "description": "This username is already taken"
+        " | This email is already taken."
+        " | The password is not strong enough."
     }
 }
 
@@ -271,6 +287,16 @@ def create_user_account(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This email is already taken",
+        )
+    # Check if password is strong enough
+    password_analysis = analyze_password(**user_in.dict())
+    if password_analysis and not is_password_strong_enough(password_analysis):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "The password is not strong enough",
+                "analysis": password_analysis,
+            },
         )
     # Create the DBUser
     db_user = DBUser(
