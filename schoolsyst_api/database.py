@@ -48,12 +48,12 @@ def initialize(database_name: Optional[str] = None) -> arango.database.StandardD
 
     print(f"[ DB ] Initializing database {database_name}")
 
-    sys_db = get("_system")
+    sys_db = _get("_system")
 
     if not sys_db.has_database(database_name):
         sys_db.create_database(database_name)
 
-    db = get(database_name)
+    db = _get(database_name)
 
     for c in COLLECTIONS:
         create_collection_if_missing(db, c)
@@ -63,7 +63,9 @@ def initialize(database_name: Optional[str] = None) -> arango.database.StandardD
     return db
 
 
-def get(database_name: Optional[str] = None) -> arango.database.StandardDatabase:
+# if we use this directly in Depends(...)
+# FastAPI will believe database_name is a query parameter.
+def _get(database_name: Optional[str] = None) -> arango.database.StandardDatabase:
     database_name = database_name or _get_default_name()
     print(f"[ DB ] Logging into database {database_name}")
 
@@ -74,3 +76,7 @@ def get(database_name: Optional[str] = None) -> arango.database.StandardDatabase
     )
 
     return db
+
+
+def get() -> arango.database.StandardDatabase:
+    return _get("schoolsyst")

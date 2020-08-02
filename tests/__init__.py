@@ -14,5 +14,5 @@ def database_mock() -> StandardDatabase:
     yield schoolsyst_api.database.initialize(db_name)
 
     print(f"[MOCK] Destroying mock database {db_name}")
-    sys_db = schoolsyst_api.database.get("_system")
+    sys_db = schoolsyst_api.database._get("_system")
     sys_db.delete_database(db_name)
