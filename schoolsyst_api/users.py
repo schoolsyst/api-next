@@ -50,6 +50,15 @@ password_context = CryptContext(schemes=["argon2"], deprecated="auto")
 # and get appropriate openapi.json integration
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
+# Load the list of disallowed usernames
+DISALLOWED_USERNAMES = (
+    (Path(__file__).parent / "disallowed_usernames.txt").read_text().splitlines()
+)
+
+
+def is_username_disallowed(username: str) -> bool:
+    return username in DISALLOWED_USERNAMES
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
@@ -259,8 +268,9 @@ async def login(
 post_users_error_responses = {
     400: {
         "description": "This username is already taken"
-        " | This email is already taken."
-        " | The password is not strong enough."
+        " | This email is already taken"
+        " | The password is not strong enough"
+        " | This username is not allowed"
     }
 }
 
@@ -279,6 +289,12 @@ def create_user_account(
     Create a user account.
     Emails and usernames are unique, usernames are _not_ case-sensitive
     """
+    # Check if the username is not disallowed
+    if is_username_disallowed(user_in.username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This username is not allowed.",
+        )
     # Check if the username is not already taken
     if is_username_taken(db, user_in.username):
         raise HTTPException(
