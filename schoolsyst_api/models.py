@@ -10,9 +10,9 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     confloat,
-    conint,
     constr,
 )
+from pydantic.color import Color
 
 Primantissa = confloat(le=1, ge=0)
 UsernameStr = constr(regex=r"[\w_-]+")
@@ -108,8 +108,7 @@ class Settings(OwnedResouce):
 class Subject(OwnedResouce):
     name: str
     slug: str
-    color: conint(ge=0x000000, le=0xFFFFFF) = 0x000000
-    weight: PositiveFloat = 1
+    color: Color
     goal: Primantissa
     room: str
 
