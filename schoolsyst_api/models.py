@@ -1,6 +1,7 @@
 from datetime import date, datetime, time
 from enum import Enum
 from typing import *
+from uuid import uuid4
 
 from pydantic import (
     UUID4,
@@ -23,7 +24,7 @@ class Resource(BaseModel):
     Base model for any resource (contains a UUID)
     """
 
-    key: UUID4 = Field(..., alias="_key")
+    key: UUID4 = Field(uuid4(), alias="_key")
 
 
 class User(Resource):
