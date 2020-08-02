@@ -1,7 +1,11 @@
+from pathlib import Path
+
+import typed_dotenv
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from schoolsyst_api import __version__, cors, database, docs, users
+from schoolsyst_api.env import EnvironmentVariables
 
 # It all begins here!
 api = FastAPI(
@@ -12,6 +16,8 @@ api = FastAPI(
     redoc_url=docs.docs_urls["redoc"],
     default_response_class=ORJSONResponse,
 )
+# Load environment variables (to validate)
+typed_dotenv.load_into(EnvironmentVariables, Path(__file__).parent.parent / ".env")
 # Initialize the database
 api.add_event_handler("startup", database.initialize)
 # Handle CORS
