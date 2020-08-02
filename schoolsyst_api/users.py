@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from os import stat
+from pathlib import Path
 from smtplib import SMTP, SMTP_SSL_PORT
 from typing import *
 from uuid import uuid4
@@ -14,7 +15,9 @@ from parse import parse
 from passlib.context import CryptContext
 from pydantic import UUID4, BaseModel, EmailStr
 from schoolsyst_api import database
-from schoolsyst_api.models import DBUser, User, UserCreation
+from schoolsyst_api.database import COLLECTIONS
+from schoolsyst_api.models import DBUser, InUser, User, UsernameStr
+from schoolsyst_api.utils import make_json_serializable
 from zxcvbn import zxcvbn
 
 router = APIRouter()
@@ -265,6 +268,25 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
+@router.get("/password-analysis/")
+def analyze_a_password(password: str, email: EmailStr, username: UsernameStr):
+    """
+    Analyses a password, given the password, the user's email address and the user's username.
+    Also returns a strong_enough key.
+    This is directy used by POST /users/ to verify password strength.
+    You can thus use this to give feedback to the user before submitting.
+    """
+    if (analysis := analyze_password(password, email, username)) is None:
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error while analyzing the password",
+        )
+    analysis = make_json_serializable(analysis)
+    del analysis["password"]
+    analysis["strong_enough"] = is_password_strong_enough(analysis)
+    return analysis
+
+
 post_users_error_responses = {
     400: {
         "description": "This username is already taken"
@@ -282,12 +304,11 @@ post_users_error_responses = {
     summary="Create a user account",
     responses=post_users_error_responses,
 )
-def create_user_account(
-    user_in: UserCreation, db: StandardDatabase = Depends(database.get)
-):
+def create_user_account(user_in: InUser, db: StandardDatabase = Depends(database.get)):
     """
     Create a user account.
-    Emails and usernames are unique, usernames are _not_ case-sensitive
+    Emails and usernames are unique, usernames are _not_ case-sensitive.
+    The password must be strong enough. See GET /password-analysis/
     """
     # Check if the username is not disallowed
     if is_username_disallowed(user_in.username):
@@ -308,7 +329,7 @@ def create_user_account(
             detail="This email is already taken",
         )
     # Check if password is strong enough
-    password_analysis = analyze_password(**user_in.dict())
+    password_analysis = analyze_a_password(**user_in.dict())
     if password_analysis and not is_password_strong_enough(password_analysis):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -415,7 +436,8 @@ class PasswordReset(BaseModel):
 post_users_password_reset_responses = {
     403: {
         "description": "The token is either corrupted, emitted by another user or expired"
-    }
+    },
+    400: {"description": "This password is not strong enough"},
 }
 
 
@@ -434,6 +456,13 @@ async def post_users_password_reset(
     (something like `https://app.schoolsyst.com/password-reset/{request_token}`) after
     performing a `POST /users/password-reset-request`.
     """
+    analysis = analyze_a_password(change_data.new_password, user.email, user.username)
+    if analysis and not is_password_strong_enough(analysis):
+        return HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This password is not strong enough",
+            headers={"X-See": "GET /password-analysis/"},
+        )
     http_error = HTTPException(
         status.HTTP_403_FORBIDDEN,
         detail=post_users_password_reset_responses[403]["description"],
@@ -465,3 +494,39 @@ async def post_users_password_reset(
         raise http_error
     # change the password
     return
+
+
+@router.delete("/users/self")
+async def delete_currently_logged_in_user(
+    user: User = Depends(get_current_user),
+    really_delete: bool = False,
+    db: StandardDatabase = Depends(database.get),
+):
+    """
+    Deletes the currently-logged-in user, and all of the associated resources.
+    This action does not require the user to have confirmed its email address.
+    """
+    if not really_delete:
+        return HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Set really_delete to True to confirm deletion",
+        )
+
+
+@router.get("/all-personal-data")
+async def get_all_personal_data(
+    user: User = Depends(get_current_confirmed_user),
+    db: StandardDatabase = Depends(database.get),
+) -> dict:
+    """
+    Get an archive of all of the data linked to the user.
+    """
+    data = {}
+    # The user's data
+    data["user"] = db.collection("users").get(user.key)
+    # the data of which the user is the owner for every collection
+    for c in COLLECTIONS:
+        if c == "users":
+            continue
+        data[c] = db.collection(c).find({"owner_id": user.key})
+    return data
