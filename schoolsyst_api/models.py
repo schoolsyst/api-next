@@ -106,12 +106,17 @@ class Settings(OwnedResouce):
     offdays: List[DateRange] = []
 
 
-class Subject(OwnedResouce):
+class InSubject(BaseModel):
     name: str
     slug: str
     color: Color
+    weight: PositiveFloat = 1.0
     goal: Primantissa
     room: str
+
+
+class Subject(InSubject, OwnedResouce):
+    pass
 
 
 class Quiz(OwnedResouce):
