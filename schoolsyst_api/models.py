@@ -15,6 +15,7 @@ from pydantic import (
 )
 
 Primantissa = confloat(le=1, ge=0)
+UsernameStr = constr(regex=r"[\w_-]+")
 
 
 class Resource(BaseModel):
@@ -31,7 +32,7 @@ class User(Resource):
     """
 
     joined_at: datetime
-    username: constr(regex=r"[\w_-]")  # unique
+    username: UsernameStr  # unique
     email: EmailStr  # unique
     email_is_confirmed: bool = False
 
@@ -40,8 +41,8 @@ class DBUser(User):
     password_hash: str
 
 
-class UserCreation(BaseModel):
-    username: constr(regex=r"[\w_-]")
+class InUser(BaseModel):
+    username: UsernameStr
     email: EmailStr
     password: str
 
