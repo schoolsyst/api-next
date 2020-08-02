@@ -67,8 +67,8 @@ def get(database_name: Optional[str] = None) -> arango.database.StandardDatabase
     database_name = database_name or _get_default_name()
     print(f"[ DB ] Logging into database {database_name}")
 
-    client = ArangoClient(hosts=os.getenv("ARANGO_HOST", "http://localhost:8529"))
-    username, password = os.getenv("ARANGO_USERNAME"), os.getenv("ARANGO_PASSWORD")
+    client = ArangoClient(hosts=os.getenv("ARANGODB_HOST", "http://localhost:8529"))
+    username, password = os.getenv("ARANGODB_USERNAME"), os.getenv("ARANGODB_PASSWORD")
     db = client.db(
         name=database_name, username=username, password=password, verify=True
     )
