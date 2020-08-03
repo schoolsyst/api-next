@@ -824,6 +824,14 @@ version = "1.15.0"
 
 [[package]]
 category = "main"
+description = "A generic slugifier."
+name = "slugify"
+optional = false
+python-versions = "*"
+version = "0.0.1"
+
+[[package]]
+category = "main"
 description = "The little ASGI library that shines."
 name = "starlette"
 optional = false
@@ -976,7 +984,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "343f31cccc4e5f06499aa1cf4c8387e367542d84ba00a467f6da28bad2615875"
+content-hash = "7dbac3f47a1248e213536c5fee8f048d4b0cb2c40cb341d5d48cfe3e437d9c34"
 lock-version = "1.1"
 python-versions = "^3.8"
 
@@ -1478,6 +1486,9 @@ rx = [
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
     {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
+]
+slugify = [
+    {file = "slugify-0.0.1.tar.gz", hash = "sha256:c5703cc11c1a6947536f3ce8bb306766b8bb5a84a53717f5a703ce0f18235e4c"},
 ]
 starlette = [
     {file = "starlette-0.13.6-py3-none-any.whl", hash = "sha256:bd2ffe5e37fb75d014728511f8e68ebf2c80b0fa3d04ca1479f4dc752ae31ac9"},

@@ -29,6 +29,7 @@ python-arango = "^5.4.0"
 zxcvbn = "^4.4.28"
 typed_dotenv = "^1.0.1"
 isodate = "^0.6.0"
+slugify = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
