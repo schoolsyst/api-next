@@ -210,7 +210,7 @@ async def get_current_user(
         if username is None:
             raise credentials_exception
         # Store the token data here (in case we have more data to store in the playload)
-        print("./schoolsyst_api/users.py:204 => username")
+        print("./schoolsyst_api/users.py:213 => username")
         print("\t" + repr(username))
         token_data = TokenData(username=username)
     except JWTError:
@@ -512,6 +512,13 @@ async def delete_currently_logged_in_user(
             detail="Set really_delete to True to confirm deletion",
         )
 
+    db.collection("users").delete(user.key)
+    for c in COLLECTIONS:
+        if c == "users":
+            continue
+
+        db.collection(c).delete_match({"owner_id": user.key})
+
 
 @router.get("/all-personal-data")
 async def get_all_personal_data(
@@ -528,5 +535,5 @@ async def get_all_personal_data(
     for c in COLLECTIONS:
         if c == "users":
             continue
-        data[c] = db.collection(c).find({"owner_id": user.key})
+        data[c] = [batch for batch in db.collection(c).find({"owner_id": user.key})]
     return data
