@@ -14,6 +14,7 @@ from pydantic import (
     constr,
 )
 from pydantic.color import Color
+from slugify import slugify
 
 Primantissa = confloat(le=1, ge=0)
 UsernameStr = constr(regex=r"[\w_-]+")
@@ -108,11 +109,14 @@ class Settings(OwnedResouce):
 
 class InSubject(BaseModel):
     name: str
-    slug: str
     color: Color
     weight: PositiveFloat = 1.0
     goal: Primantissa
     room: str
+
+    @property
+    def slug(self) -> str:  # unique
+        return slugify(self.name)
 
 
 class Subject(InSubject, OwnedResouce):
