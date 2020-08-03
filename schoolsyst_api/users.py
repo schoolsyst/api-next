@@ -1,10 +1,7 @@
 import os
 from datetime import datetime, timedelta
-from os import stat
 from pathlib import Path
-from smtplib import SMTP, SMTP_SSL_PORT
 from typing import *
-from uuid import uuid4
 
 from arango.database import StandardDatabase
 from dotenv import load_dotenv
@@ -13,10 +10,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from parse import parse
 from passlib.context import CryptContext
-from pydantic import UUID4, BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr
 from schoolsyst_api import database
 from schoolsyst_api.database import COLLECTIONS
-from schoolsyst_api.models import DBUser, InUser, User, UsernameStr
+from schoolsyst_api.models import DBUser, InUser, User, UserKey, UsernameStr
 from schoolsyst_api.utils import make_json_serializable
 from zxcvbn import zxcvbn
 
@@ -340,7 +337,6 @@ def create_user_account(user_in: InUser, db: StandardDatabase = Depends(database
         )
     # Create the DBUser
     db_user = DBUser(
-        _key=uuid4(),
         joined_at=datetime.utcnow(),
         email_is_confirmed=False,
         password_hash=hash_password(user_in.password),
@@ -354,7 +350,7 @@ def create_user_account(user_in: InUser, db: StandardDatabase = Depends(database
 class PasswordResetRequest(BaseModel):
     created_at: datetime
     token: str
-    emitted_by_id: UUID4
+    emitted_by_key: UserKey
 
 
 def create_password_reset_request_token(
@@ -412,17 +408,22 @@ and can only be used once.
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def post_users_password_reset_request(
-    tasks: BackgroundTasks, user: User = Depends(get_current_confirmed_user)
+    tasks: BackgroundTasks,
+    user: User = Depends(get_current_confirmed_user),
+    db: StandardDatabase = Depends(database.get),
 ):
     # create a request
     request = PasswordResetRequest(
         created_at=datetime.utcnow(),
-        emitted_by_id=user.uuid,
+        emitted_by_key=user.key,
         token=create_password_reset_request_token(
             user.username,
             request_valid_for=timedelta(minutes=PASSWORD_REQUEST_TOKEN_EXPIRE_MINUTES),
         ),
     )
+    # store it
+    db.collection("password_reset_requests").insert(request.json(by_alias=True))
+
     # send an email
     tasks.add_task(send_password_reset_email, user.email, user.username, request.token)
     return
@@ -477,7 +478,7 @@ async def post_users_password_reset(
         raise http_error
     # check if its associated with the current user
     matching_request = matching_requests[0]
-    if matching_request.emitted_by_id != user.uuid:
+    if matching_request.emitted_by_key != user.key:
         raise http_error
     # check if the token isn't expired
     try:
@@ -517,7 +518,7 @@ async def delete_currently_logged_in_user(
         if c == "users":
             continue
 
-        db.collection(c).delete_match({"owner_id": user.key})
+        db.collection(c).delete_match({"owner_key": user.key})
 
 
 @router.get("/all-personal-data")
@@ -535,5 +536,5 @@ async def get_all_personal_data(
     for c in COLLECTIONS:
         if c == "users":
             continue
-        data[c] = [batch for batch in db.collection(c).find({"owner_id": user.key})]
+        data[c] = [batch for batch in db.collection(c).find({"owner_key": user.key})]
     return data

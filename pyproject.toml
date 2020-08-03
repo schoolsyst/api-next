@@ -30,6 +30,7 @@ zxcvbn = "^4.4.28"
 typed_dotenv = "^1.0.1"
 isodate = "^0.6.0"
 slugify = "^0.0.1"
+nanoid = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
@@ -41,6 +42,7 @@ vulture = "^1.5"
 pre-commit = "^2.6.0"
 pytest = "^5.4.3"
 pytest-cov = "^2.10.0"
+rich = "^5.0.0"
 
 [build-system]
 requires = ["poetry>=1.0"]

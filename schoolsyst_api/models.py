@@ -1,10 +1,9 @@
 from datetime import date, datetime, time
 from enum import Enum
 from typing import *
-from uuid import uuid4
 
+import nanoid
 from pydantic import (
-    UUID4,
     BaseModel,
     EmailStr,
     Field,
@@ -18,21 +17,30 @@ from slugify import slugify
 
 Primantissa = confloat(le=1, ge=0)
 UsernameStr = constr(regex=r"[\w_-]+")
+ID_CHARSET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+USER_KEY_LEN = 10
+OBJECT_KEY_LEN = 6
+UserKey = constr(regex=f"[{ID_CHARSET}]{{{USER_KEY_LEN}}}")
+ObjectKey = constr(
+    regex=f"[{ID_CHARSET}]{{{USER_KEY_LEN}}}/[{ID_CHARSET}]{{{OBJECT_KEY_LEN}}}"
+)
+ObjectBareKey = constr(regex=f"[{ID_CHARSET}]{{{OBJECT_KEY_LEN}}}")
 
 
-class Resource(BaseModel):
-    """
-    Base model for any resource (contains a UUID)
-    """
-
-    key: UUID4 = Field(uuid4(), alias="_key")
+def userkey():
+    return nanoid.generate(ID_CHARSET, USER_KEY_LEN)
 
 
-class User(Resource):
+def objectkey(owner_key):
+    return f"{owner_key}/{nanoid.generate(ID_CHARSET, OBJECT_KEY_LEN)}"
+
+
+class User(BaseModel):
     """
     Represents a user
     """
 
+    key: UserKey = Field(userkey(), alias="_key")
     joined_at: datetime
     username: UsernameStr  # unique
     email: EmailStr  # unique
@@ -49,14 +57,19 @@ class InUser(BaseModel):
     password: str
 
 
-class OwnedResouce(Resource):
+class OwnedResouce(BaseModel):
     """
     Base model for resources owned by users
     """
 
-    owner_id: UUID4
+    object_key: ObjectBareKey = nanoid.generate(ID_CHARSET, OBJECT_KEY_LEN)
+    owner_key: UserKey
     updated_at: Optional[datetime] = None
     created_at: datetime = datetime.now()
+
+    @property
+    def _key(self) -> ObjectKey:
+        return objectkey(self.owner_key)
 
 
 class DatetimeRange(BaseModel):
@@ -165,7 +178,7 @@ class Note(OwnedResouce):
 
     @property
     def thumbnail_url(self) -> str:
-        return f"/notes/{self.uuid}/thubmnail"
+        return f"/notes/{self._key}/thubmnail"
 
 
 class Grade(OwnedResouce):
@@ -187,7 +200,7 @@ class HomeworkType(str, Enum):
 
 class Homework(OwnedResouce):
     title: str
-    subject_id: UUID4
+    subject_key: ObjectKey
     type: HomeworkType
     completed_at: datetime
     progress: Primantissa
@@ -206,7 +219,7 @@ class ISOWeekDay(int, Enum):
 
 
 class Event(OwnedResouce):
-    subject_id: UUID4
+    subject_key: ObjectKey
     start: time
     end: time
     day: ISOWeekDay
@@ -252,8 +265,8 @@ class EventMutationInterpretation(str, Enum):
 
 
 class EventMutation(OwnedResouce):
-    event_id: Optional[UUID4] = None
-    subject_id: Optional[UUID4] = None
+    event_key: Optional[ObjectKey] = None
+    subject_key: Optional[ObjectKey] = None
     deleted_in: Optional[DateRange] = None
     added_in: Optional[DateRange] = None
     room: Optional[str] = None
@@ -261,7 +274,7 @@ class EventMutation(OwnedResouce):
     @property
     def interpretation(self) -> Optional[EventMutationInterpretation]:
         """
-        if subject_id
+        if subject_key
            and added_in     and deleted_in      -> edit
            and added_in     and not deleted_in  -> None
            and not added_in and deleted_in      -> None
@@ -272,11 +285,10 @@ class EventMutation(OwnedResouce):
            and not added_in and deleted_in      -> deletion
            and not added_in and not deleted_in  -> None
 
-        >>> from uuid import uuid4
+        >>> import nanoid
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
-        ...     subject_id=uuid4(),
+        ...     owner_key=userkey(),
+        ...     subject_key=objectkey(userkey()),
         ...     added_in=DateRange(
         ...         start=date(2020, 5, 4),
         ...         end=date(2020, 6, 4)
@@ -288,31 +300,27 @@ class EventMutation(OwnedResouce):
         ... ).interpretation.value
         'edit'
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
-        ...     subject_id=uuid4(),
+        ...     owner_key=userkey(),
+        ...     subject_key=objectkey(userkey()),
         ...     added_in=DateRange(
         ...         start=date(2020, 5, 4),
         ...         end=date(2020, 6, 4)
         ...     ),
         ... ).interpretation
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
-        ...     subject_id=uuid4(),
+        ...     owner_key=userkey(),
+        ...     subject_key=objectkey(userkey()),
         ...     deleted_in=DateRange(
         ...         start=date(2020, 4, 4),
         ...         end=date(2020, 5, 3)
         ...     )
         ... ).interpretation
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
-        ...     subject_id=uuid4(),
+        ...     owner_key=userkey(),
+        ...     subject_key=objectkey(userkey()),
         ... ).interpretation
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
+        ...     owner_key=userkey(),
         ...     added_in=DateRange(
         ...         start=date(2020, 5, 4),
         ...         end=date(2020, 6, 4)
@@ -324,8 +332,7 @@ class EventMutation(OwnedResouce):
         ... ).interpretation.value
         'reschedule'
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
+        ...     owner_key=userkey(),
         ...     added_in=DateRange(
         ...         start=date(2020, 5, 4),
         ...         end=date(2020, 6, 4)
@@ -333,8 +340,7 @@ class EventMutation(OwnedResouce):
         ... ).interpretation.value
         'addition'
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
+        ...     owner_key=userkey(),
         ...     deleted_in=DateRange(
         ...         start=date(2020, 4, 4),
         ...         end=date(2020, 5, 3)
@@ -342,11 +348,10 @@ class EventMutation(OwnedResouce):
         ... ).interpretation.value
         'deletion'
         >>> EventMutation(
-        ...     uuid=uuid4(),
-        ...     owner_id=uuid4(),
+        ...     owner_key=userkey(),
         ... ).interpretation
         """
-        if self.subject_id is not None:
+        if self.subject_key is not None:
             if self.added_in and self.deleted_in:
                 return EventMutationInterpretation.edit
             return None
@@ -360,7 +365,7 @@ class EventMutation(OwnedResouce):
 
 
 class Course(OwnedResouce):
-    subject_id: UUID4
+    subject_key: ObjectKey
     start: datetime
     end: datetime
     room: str
