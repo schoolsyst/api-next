@@ -79,4 +79,4 @@ def _get(database_name: Optional[str] = None) -> arango.database.StandardDatabas
 
 
 def get() -> arango.database.StandardDatabase:
-    return _get("schoolsyst")
+    return _get(_get_default_name())
