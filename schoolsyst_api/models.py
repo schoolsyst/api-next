@@ -115,10 +115,10 @@ class OwnedResource(BaseModel):
     Base model for resources owned by users
     """
 
-    object_key: ObjectBareKey
+    object_key: ObjectBareKey = Field(default_factory=objectbarekey)
     owner_key: UserKey
     updated_at: Optional[datetime] = None
-    created_at: datetime = datetime.now()
+    created_at: datetime = Field(default_factory=datetime.now)
 
     @property
     def _key(self) -> ObjectKey:
