@@ -26,10 +26,10 @@ def test_list_subjects():
 
             assert response.status_code == 200
             assert len(response.json()) == 2
-            assert mocks.subjects.sciences_de_l_ingénieur.key not in keys
+            assert mocks.subjects.sciences_de_l_ingénieur._key not in keys
             assert all(
                 [
-                    str(s.key) in keys
+                    s._key in keys
                     for s in (mocks.subjects.francais, mocks.subjects.mathematiques)
                 ]
             )
