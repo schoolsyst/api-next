@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from arango.database import StandardDatabase
 from dotenv import load_dotenv
@@ -9,7 +8,7 @@ from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 from pydantic import EmailStr
 from schoolsyst_api import database
-from schoolsyst_api.accounts import router
+from schoolsyst_api.accounts import get_user, router
 from schoolsyst_api.accounts.auth import (
     TokenData,
     analyze_a_password,
@@ -49,18 +48,6 @@ def is_email_taken(db: StandardDatabase, email: EmailStr) -> bool:
     return db.collection("users").find({"email": email}).count() > 0
 
 
-def get_user(db: StandardDatabase, username: str) -> Optional[DBUser]:
-    """
-    Get a user by username from the DB.
-    Returns `None` if the user is not found.
-    """
-    # Usernames are not case-sensitive
-    user_dict = db.collection("users").find({"username": username}).batch()
-    if not user_dict:
-        return None
-    return DBUser(**user_dict[0])
-
-
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: StandardDatabase = Depends(database.get)
 ) -> User:
@@ -69,7 +56,8 @@ async def get_current_user(
     The (JWT) token is decoded, the username is extracted from its payload,
     then the user is looked up by username from the database and returned.
 
-    For security concerns, the pydantic model returned does not include the password hash.
+    For security concerns, the pydantic model returned
+    does not include the password hash.
 
     A 401 Unauthorized exception is automatically raised if any problem arises
     during token decoding or user lookup

@@ -6,7 +6,7 @@ from arango.exceptions import DocumentGetError
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import Response
 from schoolsyst_api import database
-from schoolsyst_api.accounts import get_current_confirmed_user
+from schoolsyst_api.accounts.users import get_current_confirmed_user
 from schoolsyst_api.models import InSubject, ObjectBareKey, Subject, User
 
 router = APIRouter()
@@ -54,7 +54,7 @@ def update_a_subject(
     if subject.owner_key != current_user.key:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Currently logged-in user does not own the specified subject",
+            detail="Currently logged-in user does not own the specified subject",
         )
 
     return db.collection("subjects").update(f"{current_user.key}/{key}", subject.json())

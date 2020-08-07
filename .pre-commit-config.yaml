@@ -22,7 +22,7 @@ repos:
       rev: 3.7.8
       hooks:
           - id: flake8
-            exclude: schoolsyst_api/users.py # uses the walrus operator, see https://bbs.archlinux.org/viewtopic.php?id=251088
+            exclude: schoolsyst_api/accounts/auth.py # uses the walrus operator, see https://bbs.archlinux.org/viewtopic.php?id=251088
             args:
               - --ignore=F405,F403,W503
               - --max-line-length=88

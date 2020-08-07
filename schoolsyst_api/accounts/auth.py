@@ -11,8 +11,7 @@ from parse import parse
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 from schoolsyst_api import database
-from schoolsyst_api.accounts import router
-from schoolsyst_api.accounts.users import get_user
+from schoolsyst_api.accounts import get_user, router
 from schoolsyst_api.models import UsernameStr
 from schoolsyst_api.utils import make_json_serializable
 from zxcvbn import zxcvbn
@@ -91,19 +90,6 @@ def hash_password(plain_password: str) -> str:
     return password_context.hash(plain_password)
 
 
-def authenticate_user(db: StandardDatabase, username: str, password: str):
-    """
-    Tries to authentificate the user with `username` and `password`.
-    Returns `False` if the password is incorrect or if the user is not found.
-    """
-    user = get_user(db, username)
-    if not user:
-        return False
-    if not verify_password(password, user.password_hash):
-        return False
-    return user
-
-
 def create_access_token(payload: dict, expires_delta: timedelta):
     """
     Creates an OAuth2 JWT access token:
@@ -146,6 +132,19 @@ def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
     return username[0]
 
 
+def authenticate_user(db: StandardDatabase, username: str, password: str):
+    """
+    Tries to authentificate the user with `username` and `password`.
+    Returns `False` if the password is incorrect or if the user is not found.
+    """
+    user = get_user(db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.password_hash):
+        return False
+    return user
+
+
 @router.post("/auth/", response_model=Token)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -169,7 +168,9 @@ async def login(
 
 
 @router.get("/password-analysis/")
-def analyze_a_password(password: str, email: EmailStr, username: UsernameStr):
+def analyze_a_password(
+    password: str, email: EmailStr, username: UsernameStr
+) -> Dict[str, Any]:
     """
     Analyses a password, given the password, the user's email address and the user's username.
     Also returns a strong_enough key.
