@@ -1,13 +1,13 @@
 from datetime import datetime
-from typing import *
+from typing import List
 
 from arango.database import StandardDatabase
 from arango.exceptions import DocumentGetError
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import Response
 from schoolsyst_api import database
+from schoolsyst_api.accounts import get_current_confirmed_user
 from schoolsyst_api.models import InSubject, ObjectBareKey, Subject, User
-from schoolsyst_api.users import get_current_confirmed_user
 
 router = APIRouter()
 
