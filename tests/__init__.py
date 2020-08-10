@@ -7,31 +7,36 @@ import nanoid
 import schoolsyst_api.database
 from arango.database import StandardDatabase
 from fastapi.testclient import TestClient
+from schoolsyst_api.accounts.auth import hash_password
 from schoolsyst_api.main import api
 from schoolsyst_api.models import DBUser, Subject, UsernameStr
-from schoolsyst_api.users import hash_password
 
 os.environ["TESTING"] = "True"
 client = TestClient(api)
 ALICE_PASSWORD = "fast-unicorn-snails-dragon5"
-ALICE_KEY = "fea7d52d-8b1f-406b-a23a-98fcb000a0c7"
+ALICE_KEY = "8FPuamSTXK"
 JOHN_PASSWORD = "dice-wears-hats9-star-game"
-JOHN_KEY = "255ae1b4-47cf-4458-aba5-9f7193417122"
+JOHN_KEY = "zMSLrwGwZA"
 
 
 @contextmanager
 def database_mock() -> StandardDatabase:
     db_name = f"mock-database-{nanoid.generate(size=5)}"
     os.environ["CURRENT_MOCK_DB_NAME"] = db_name
+
     print(f"[MOCK] Creating mock database {db_name}")
     db: Optional[StandardDatabase] = schoolsyst_api.database.initialize(db_name)
     if db is None:
         raise ValueError("Could not create mock database")
-    yield db
 
-    print(f"[MOCK] Destroying mock database {db_name}")
-    sys_db = schoolsyst_api.database._get("_system")
-    sys_db.delete_database(db_name)
+    try:
+        yield db
+    finally:
+        sys_db = schoolsyst_api.database._get("_system")
+        for dbname in sys_db.databases():
+            if dbname.startswith("mock-database-"):
+                print(f"[MOCK] Destroying mock database {dbname}")
+                sys_db.delete_database(dbname)
 
 
 @contextmanager
@@ -61,9 +66,9 @@ class mocks:
         )
 
     class subjects:
-        francais = Subject(
+        français = Subject(
             owner_key=ALICE_KEY,
-            _key="bbe60d11-3716-4648-ad52-6936986f152a",
+            # object_key=objectbarekey(),
             color="red",
             goal=1.0,
             room="L204",
@@ -73,7 +78,7 @@ class mocks:
 
         mathematiques = Subject(
             owner_key=ALICE_KEY,
-            _key="08b5e9c3-d231-4daa-841a-17c2ff59573f",
+            # object_key=objectbarekey(),
             color="cyan",
             goal=0.4,
             room="L624",
@@ -83,7 +88,7 @@ class mocks:
 
         sciences_de_l_ingénieur = Subject(
             owner_key=JOHN_KEY,
-            _key="683f614c-84ef-43a2-bd0f-9ac7fb5f366e",
+            # object_key=objectbarekey(),
             color="#c0ffee",
             goal=0.8,
             room="",

@@ -17,6 +17,7 @@ ObjectKey = constr(
     regex=f"[{ID_CHARSET}]{{{USER_KEY_LEN}}}:[{ID_CHARSET}]{{{OBJECT_KEY_LEN}}}"
 )
 ObjectBareKey = constr(regex=f"[{ID_CHARSET}]{{{OBJECT_KEY_LEN}}}")
+OBJECT_KEY_FORMAT = "{owner}:{object}"
 
 
 def userkey():
@@ -28,7 +29,7 @@ def objectbarekey():
 
 
 def objectkey(owner_key):
-    return f"{owner_key}:{objectbarekey()}"
+    return OBJECT_KEY_FORMAT.format(owner=owner_key, object=objectbarekey())
 
 
 class BaseModel(PydanticBaseModel):
@@ -70,7 +71,7 @@ class BaseModel(PydanticBaseModel):
             exclude_none=exclude_none,
         )
         include = include or set()
-        include |= {"_key"}
+        include |= {"_key", "slug"}
         props = self.get_properties()
         # Include and exclude properties
         if include:
@@ -93,7 +94,7 @@ class User(BaseModel):
     Represents a user
     """
 
-    key: UserKey = Field(userkey(), alias="_key")
+    key: UserKey = Field(default_factory=userkey, alias="_key")
     joined_at: datetime
     username: UsernameStr  # unique
     email: EmailStr  # unique
@@ -177,8 +178,8 @@ class InSubject(BaseModel):
     name: str
     color: Color
     weight: Union[PositiveFloat, Literal[0]] = 1.0
-    goal: Primantissa
-    room: str
+    goal: Optional[Primantissa] = None
+    room: str = ""
 
     @property
     def slug(self) -> str:  # unique
