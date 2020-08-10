@@ -10,7 +10,7 @@ before_install:
   - echo -ne "ARANGODB_USERNAME=\"root\"\n" >> .env
   - echo -ne "ARANGODB_PASSWORD=\"openSesame\"\n" >> .env
   - pip install 'poetry>=1.0'
-  - docker run -p 8529:8529 -e ARANGO_ROOT_PASSWORD=openSesame arangodb/arangodb:3.6.5
+  - docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=openSesame arangodb/arangodb:3.6.5
 
 install:
   - poetry install
