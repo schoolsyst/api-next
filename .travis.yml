@@ -1,17 +1,16 @@
 language: python
 python:
   - '3.8'
+services:
+  - docker
 
 before_install:
   - touch .env
   - echo -ne "SECRET_KEY=\"$SECRET_KEY\"\n" >> .env
   - echo -ne "ARANGODB_USERNAME=\"root\"\n" >> .env
-  - echo -ne "ARANGODB_PASSWORD=\"root\"\n" >> .env
+  - echo -ne "ARANGODB_PASSWORD=\"openSesame\"\n" >> .env
   - pip install 'poetry>=1.0'
-  - echo arangodb3 arangodb/password password root | sudo debconf-set-selections  # set username 'root'
-  - echo arangodb3 arangodb/password_again password root | sudo debconf-set-selections  # set password 'root'
-  - chmod +x setup_ci_arangodb.sh
-  - ./setup_ci_arangodb.sh
+  - docker run -p 8529:8529 -e ARANGO_ROOT_PASSWORD=openSesame arangodb/arangodb:3.6.5
 
 install:
   - poetry install
