@@ -52,8 +52,6 @@ def is_password_strong_enough(password_analysis: Dict[str, Any]) -> bool:
 def analyze_password(
     password: str, username: str, email: str
 ) -> Optional[Dict[str, Any]]:
-    if not all((type(p) is str for p in (password, email, username))):
-        return None
     return zxcvbn(password, [email, username])
 
 
@@ -103,8 +101,6 @@ def create_access_token(payload: dict, expires_delta: timedelta):
     True
     """
     key = os.getenv("SECRET_KEY")
-    if not key:
-        raise ValueError("SECRET_KEY must be set in .env")
     to_encode = payload.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
