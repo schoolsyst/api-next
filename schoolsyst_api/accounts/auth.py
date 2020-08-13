@@ -12,7 +12,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 from schoolsyst_api import database
 from schoolsyst_api.accounts import get_user, router
-from schoolsyst_api.models import UsernameStr
+from schoolsyst_api.models import DBUser, UsernameStr
 from schoolsyst_api.utils import make_json_serializable
 from zxcvbn import zxcvbn
 
@@ -132,7 +132,9 @@ def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
     return username[0]
 
 
-def authenticate_user(db: StandardDatabase, username: str, password: str):
+def authenticate_user(
+    db: StandardDatabase, username: str, password: str
+) -> Union[DBUser, Literal[False]]:
     """
     Tries to authentificate the user with `username` and `password`.
     Returns `False` if the password is incorrect or if the user is not found.
