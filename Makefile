@@ -17,8 +17,7 @@ requirements.txt:
 	poetry export -f requirements.txt > requirements.txt
 
 test:
-	sudo systemctl start arangodb3 \
-	&& poetry run \
+	poetry run \
 		python -m doctest -v schoolsyst_api/**.py \
 	&& poetry run \
 		pytest --cov=schoolsyst_api
