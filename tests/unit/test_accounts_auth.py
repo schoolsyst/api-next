@@ -1,15 +1,9 @@
-import os
-from datetime import timedelta
-
 from arango.database import StandardDatabase
-from jose import jwt
 from passlib.context import CryptContext
 from schoolsyst_api.accounts.auth import (
-    JWT_SIGN_ALGORITHM,
     JWT_SUB_FORMAT,
     analyze_password,
     authenticate_user,
-    create_access_token,
     extract_username_from_jwt_payload,
     hash_password,
     is_password_strong_enough,
@@ -52,14 +46,6 @@ def test_hash_password():
         hash_password("hunter2")[:20]
         == CryptContext(schemes=["argon2"], deprecated="auto").hash("hunter2")[:20]
     )
-
-
-def test_create_access_token():
-    token = create_access_token({"sub": "cruise"}, timedelta(seconds=50))
-    decoded = jwt.decode(
-        token, os.getenv("SECRET_KEY"), JWT_SIGN_ALGORITHM, subject="cruise"
-    )
-    assert decoded
 
 
 def test_extract_username_from_jwt_payload():
