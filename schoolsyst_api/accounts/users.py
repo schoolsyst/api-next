@@ -106,9 +106,9 @@ async def get_current_confirmed_user(current_user: User = Depends(get_current_us
 
 
 @router.get(
-    "/users/self", response_model=User, summary="Get the currently logged-in user",
+    "/users/self", summary="Get the currently logged-in user",
 )
-async def read_users_self(current_user: User = Depends(get_current_user)):
+async def read_users_self(current_user: User = Depends(get_current_user)) -> User:
     return current_user
 
 
@@ -124,12 +124,13 @@ post_users_error_responses = {
 
 @router.post(
     "/users/",
-    response_model=User,
     status_code=status.HTTP_201_CREATED,
     summary="Create a user account",
     responses=post_users_error_responses,
 )
-def create_user_account(user_in: InUser, db: StandardDatabase = Depends(database.get)):
+def create_user_account(
+    user_in: InUser, db: StandardDatabase = Depends(database.get)
+) -> User:
     """
     Create a user account.
     Emails and usernames are unique, usernames are _not_ case-sensitive.

@@ -145,11 +145,11 @@ def authenticate_user(db: StandardDatabase, username: str, password: str):
     return user
 
 
-@router.post("/auth/", response_model=Token)
+@router.post("/auth/")
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: StandardDatabase = Depends(database.get),
-):
+) -> Token:
     # Try to auth the user
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from arango.database import StandardDatabase
-from fastapi.routing import APIRouter
+from fastapi_utils.inferring_router import InferringRouter
 from schoolsyst_api.models import DBUser
 
 
@@ -17,4 +17,4 @@ def get_user(db: StandardDatabase, username: str) -> Optional[DBUser]:
     return DBUser(**user_dict[0])
 
 
-router = APIRouter()
+router = InferringRouter()

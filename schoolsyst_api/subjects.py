@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List
 
 from arango.database import StandardDatabase
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import Response
+from fastapi import Depends, HTTPException, Response, status
+from fastapi_utils.inferring_router import InferringRouter
 from schoolsyst_api import database
 from schoolsyst_api.accounts.users import get_current_confirmed_user
 from schoolsyst_api.models import (
@@ -15,7 +15,7 @@ from schoolsyst_api.models import (
     User,
 )
 
-router = APIRouter()
+router = InferringRouter()
 
 
 @router.post("/subjects/", status_code=status.HTTP_201_CREATED)
@@ -73,7 +73,7 @@ def get_a_subject(
     current_user: User = Depends(get_current_confirmed_user),
     db: StandardDatabase = Depends(database.get),
 ) -> Subject:
-    full_key = f"{current_user.key}:{key}"
+    full_key = OBJECT_KEY_FORMAT.format(object=key, owner=current_user.key)
     subject = db.collection("subjects").get(full_key)
 
     if not subject:
@@ -100,13 +100,17 @@ delete_a_subject_responses = {
 }
 
 
-@router.delete("/subjects/{key}", responses={204: {}})
+@router.delete(
+    "/subjects/{key}",
+    responses=delete_a_subject_responses,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_a_subject(
     key: ObjectBareKey,
     current_user: User = Depends(get_current_confirmed_user),
     db: StandardDatabase = Depends(database.get),
 ):
-    full_key = f"{current_user.key}:{key}"
+    full_key = OBJECT_KEY_FORMAT.format(object=key, owner=current_user.key)
     subject = db.collection("subjects").get(full_key)
     if subject is None:
         raise HTTPException(
