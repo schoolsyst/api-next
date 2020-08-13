@@ -91,6 +91,9 @@ email-validator==1.1.1 \
 fastapi==0.60.1 \
     --hash=sha256:96f964c3d9da8183f824857ad67c16c00ff3297e7bbca6748f60bd8485ded38c \
     --hash=sha256:9a4faa0e2b9c88a3772f7ce15eb4005bbdd27d1230ab4a0cd3517316175014a6
+fastapi-etag==0.2.2 \
+    --hash=sha256:baf98032cc5a4cd9fc59552a60f572c17c993bd8d5f5894d78aa975d3b84fb74 \
+    --hash=sha256:1f6e1bd8a5daeb32da0a60bffef63aafddc8997010c3608bea61ced3c6b70f6d
 fastapi-utils==0.2.1 \
     --hash=sha256:0e6c7fc1870b80e681494957abf65d4f4f42f4c7f70005918e9181b22f1bd759 \
     --hash=sha256:dd0be7dc7f03fa681b25487a206651d99f2330d5a567fb8ab6cb5f8a06a29360

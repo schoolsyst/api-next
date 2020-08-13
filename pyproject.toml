@@ -32,6 +32,7 @@ isodate = "^0.6.0"
 nanoid = "^2.0.0"
 python-slugify = "^4.0.1"
 fastapi_utils = "^0.2.1"
+fastapi-etag = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
