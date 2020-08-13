@@ -17,14 +17,15 @@ requirements.txt:
 	poetry export -f requirements.txt > requirements.txt
 
 test:
-	sudo systemctl start arangodb3 && \
-	poetry run \
-		python -m doctest schoolsyst_api/*.py \
-	;poetry run \
+	sudo systemctl start arangodb3 \
+	&& poetry run \
+		python -m doctest -v schoolsyst_api/**.py \
+	&& poetry run \
 		pytest --cov=schoolsyst_api
 
-# TODO: include make dependency-graph in pre-commit config
-prepush:
-	$(MAKE) fmt
-	$(MAKE) dependency-graph
-	exit 0
+tidy:
+	poetry run \
+
+		autoflake --remove-all-unused-imports --expand-star-imports --in-place **.py \
+	&& poetry run \
+		black **.py
