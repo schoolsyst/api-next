@@ -11,7 +11,7 @@ from parse import parse
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 from schoolsyst_api import database
-from schoolsyst_api.accounts import get_user, router
+from schoolsyst_api.accounts import create_jwt_token, get_user, router
 from schoolsyst_api.models import DBUser, UsernameStr
 from schoolsyst_api.utils import make_json_serializable
 from zxcvbn import zxcvbn
@@ -20,7 +20,7 @@ load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_SIGN_ALGORITHM = "HS256"
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 3
+ACCESS_TOKEN_VALID_FOR = timedelta(minutes=3)
 JWT_SUB_FORMAT = "username:{}"
 
 
@@ -34,7 +34,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Models the data in the JWT token's payload"""
 
-    username: Optional[str] = None
+    username: str
 
 
 # Context for password hashing
@@ -88,26 +88,6 @@ def hash_password(plain_password: str) -> str:
     return password_context.hash(plain_password)
 
 
-def create_access_token(payload: dict, expires_delta: timedelta):
-    """
-    Creates an OAuth2 JWT access token:
-    Encodes the `payload` with SECRET_KEY using JWT_SIGN_ALGORITHM,
-    set the expiration timestamp `exp` to `expires_delta` in the future
-
-    >>> create_access_token(
-    ...     {"sub": "cruise"},
-    ...     timedelta(seconds=50)
-    ... ).startswith('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
-    True
-    """
-    key = os.getenv("SECRET_KEY")
-    to_encode = payload.copy()
-    expire = datetime.utcnow() + expires_delta
-    to_encode.update({"exp": expire})
-    encoded_jwt: str = jwt.encode(to_encode, key, algorithm=JWT_SIGN_ALGORITHM)
-    return encoded_jwt
-
-
 def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
     """
     Extract the username from the JWT's `sub`.
@@ -119,6 +99,7 @@ def extract_username_from_jwt_payload(payload: dict) -> Optional[str]:
     >>> extract_username_from_jwt_payload({"sub": "bertrand"})
     >>> extract_username_from_jwt_payload({"sub": "username:ambre"})
     'ambre'
+    >>> extract_username_from_jwt_payload({"sub": "usaanam:ambre"})
     >>> extract_username_from_jwt_payload({})
     """
     if (subject := payload.get("sub")) is None:
@@ -157,9 +138,10 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     # Create the access token
-    access_token = create_access_token(
-        payload={"sub": f"username:{user.username}"},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    access_token = create_jwt_token(
+        sub_format=JWT_SUB_FORMAT,
+        sub_value=user.username,
+        valid_for=ACCESS_TOKEN_VALID_FOR,
     )
     # Return the access token
     return Token(access_token=access_token, token_type="bearer")
