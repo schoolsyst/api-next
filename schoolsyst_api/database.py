@@ -17,8 +17,6 @@ COLLECTIONS = [
     "homework",
     "events",
     "event_mutations",
-    "password_reset_requests",
-    "email_confirmations",
 ]
 
 
