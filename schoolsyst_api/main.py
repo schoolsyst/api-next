@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import fastapi_etag
 import typed_dotenv
 import uvicorn
 from fastapi import FastAPI
@@ -20,6 +21,8 @@ api = FastAPI(
 typed_dotenv.load_into(EnvironmentVariables, Path(__file__).parent.parent / ".env")
 # Initialize the database
 api.add_event_handler("startup", database.initialize)
+# Handle Etags
+fastapi_etag.add_exception_handler(api)
 # Handle CORS
 api.add_middleware(**cors.middleware_params)
 # Include routes
