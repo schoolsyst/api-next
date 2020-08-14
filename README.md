@@ -1,8 +1,8 @@
-<center><p align="center">
-<img src="https://raw.githubusercontent.com/schoolsyst/presentation/master/assets/logo-black.svg" alt="schoolsyst logo" height="150px">
-<h1>schoolsyst's (next) API</h1>
-<img src="https://travis-ci.com/schoolsyst/api-next.svg?branch=master&status=passed" alt="Build status">&nbsp;<img alt="Code coverage" src="https://img.shields.io/codecov/c/github/schoolsyst/api-next">
-</p></center>
+<img alt="schoolsyst logo" src="https://raw.githubusercontent.com/schoolsyst/presentation/master/assets/logo-black.svg" height="100px"/>
+
+# schoolsyst's (next) API
+
+![Build status](https://travis-ci.com/schoolsyst/api-next.svg?branch=master&status=passed)![Code coverage](https://img.shields.io/codecov/c/github/schoolsyst/api-next)
 
 Schoolsyst's next API implementation, built with [FastAPI](https://fastapi.tiangolo.com)
 
