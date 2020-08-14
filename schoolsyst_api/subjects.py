@@ -5,7 +5,7 @@ from typing import List
 from arango.database import StandardDatabase
 from fastapi import Depends, HTTPException, Response, status
 from fastapi_utils.inferring_router import InferringRouter
-from schoolsyst_api import database
+from schoolsyst_api import database, etag
 from schoolsyst_api.accounts.users import get_current_confirmed_user
 from schoolsyst_api.models import (
     OBJECT_KEY_FORMAT,
@@ -67,7 +67,7 @@ def update_a_subject(
     return db.collection("subjects").update(updated_subject, return_new=True)["new"]
 
 
-@router.get("/subjects/{key}")
+@router.get("/subjects/{key}", dependencies=[Depends(etag.compute_for("subjects"))])
 def get_a_subject(
     key: ObjectBareKey,
     current_user: User = Depends(get_current_confirmed_user),
