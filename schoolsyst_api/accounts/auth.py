@@ -1,12 +1,11 @@
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import *
 
 from arango.database import StandardDatabase
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import jwt
 from parse import parse
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
