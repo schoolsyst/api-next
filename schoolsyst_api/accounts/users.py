@@ -69,19 +69,20 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        # Try to decode the jwt token and get the payload's sub
+        # Try to decode the jwt token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_SIGN_ALGORITHM])
-        username = extract_username_from_jwt_payload(payload)
-        # In that case the jwt token is invalid
-        if username is None:
-            raise credentials_exception
-        # Store the token data here (in case we have more data to store in the playload)
-        print("./schoolsyst_api/users.py:213 => username")
-        print("\t" + repr(username))
-        token_data = TokenData(username=username)
     except JWTError:
         # If any kind of JWT-related error happened
         raise credentials_exception
+    # Get the username from the decoded jwt token
+    username = extract_username_from_jwt_payload(payload)
+    # In that case the jwt token is invalid
+    if username is None:
+        raise credentials_exception
+    # Store the token data in TokenData
+    print("./schoolsyst_api/users.py:83 => username")
+    print("\t" + repr(username))
+    token_data = TokenData(username=username)
     # Get the user from the database. At this step token_data.username is not None.
     user = get_user(db, username=token_data.username)
     # If the token's payload refers to an unknown user
@@ -93,7 +94,9 @@ async def get_current_user(
     return User(**user.dict(by_alias=True))
 
 
-async def get_current_confirmed_user(current_user: User = Depends(get_current_user),):
+async def get_current_confirmed_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     """
     Gets the current user with `get_current_user` and raises a 400 if the gotten user
     hasn't confirmed its email address
