@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Regular build dependencies (not runtime ones)
-RUN apt-get update && apt-get -y install netcat gcc g++ git make -y
+RUN apt-get update && rm -rf /var/lib/apt/lists/* && apt-get --no-install-recommends -y install netcat gcc g++ git make -y
 
 # Install the package manager
 RUN pip install 'poetry>=1.0'
