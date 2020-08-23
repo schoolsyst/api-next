@@ -5,24 +5,21 @@ from arango.database import StandardDatabase
 from fastapi import Depends, Query, status
 from fastapi_utils.inferring_router import InferringRouter
 from schoolsyst_api import database, settings
+from schoolsyst_api.accounts.models import User
 from schoolsyst_api.accounts.users import get_current_confirmed_user
-from schoolsyst_api.models import (
+from schoolsyst_api.models import DatetimeRange, ObjectBareKey, WeekType
+from schoolsyst_api.resource_base import ResourceRoutesGenerator
+from schoolsyst_api.schedule.models import (
     Course,
-    DatetimeRange,
     Event,
     EventMutation,
     EventMutationInterpretation,
     InEvent,
-    ObjectBareKey,
-    Settings,
-    User,
-    WeekType,
 )
-from schoolsyst_api.resource_base import ResourceRoutesGenerator
+from schoolsyst_api.settings.models import Settings
 from schoolsyst_api.utils import daterange
 
 router = InferringRouter()
-
 helper = ResourceRoutesGenerator(
     name_sg="event", name_pl="events", model_in=InEvent, model_out=Event,
 )

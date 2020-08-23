@@ -17,8 +17,8 @@ from schoolsyst_api.accounts.auth import (
     is_password_strong_enough,
     oauth2_scheme,
 )
+from schoolsyst_api.accounts.models import DBUser, InUser, User
 from schoolsyst_api.database import COLLECTIONS
-from schoolsyst_api.models import DBUser, InUser, User
 
 load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")

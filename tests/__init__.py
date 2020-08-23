@@ -7,8 +7,9 @@ import schoolsyst_api.database
 import tests.mocks
 from arango.database import StandardDatabase
 from fastapi.testclient import TestClient
+from schoolsyst_api.accounts.models import UsernameStr
 from schoolsyst_api.main import api
-from schoolsyst_api.models import BaseModel, UsernameStr
+from schoolsyst_api.models import BaseModel
 
 os.environ["TESTING"] = "True"
 client = TestClient(api)

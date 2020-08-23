@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from schoolsyst_api.accounts.auth import hash_password
-from schoolsyst_api.models import DBUser, Homework, HomeworkType, Subject
+from schoolsyst_api.accounts.models import DBUser
+from schoolsyst_api.homework.models import Homework, HomeworkType
+from schoolsyst_api.subjects.models import Subject
 
 ALICE_PASSWORD = "fast-unicorn-snails-dragon5"
 ALICE_KEY = "8FPuamSTXK"

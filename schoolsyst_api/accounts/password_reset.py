@@ -12,8 +12,9 @@ from schoolsyst_api.accounts.auth import (
     hash_password,
     is_password_strong_enough,
 )
+from schoolsyst_api.accounts.models import User
 from schoolsyst_api.accounts.users import get_current_confirmed_user
-from schoolsyst_api.models import User, UserKey
+from schoolsyst_api.models import UserKey
 
 load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")

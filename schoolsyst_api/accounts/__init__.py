@@ -5,7 +5,7 @@ from typing import Optional
 from arango.database import StandardDatabase
 from fastapi_utils.inferring_router import InferringRouter
 from jose import jwt
-from schoolsyst_api.models import DBUser
+from schoolsyst_api.accounts.models import DBUser
 
 JWT_SIGN_ALGORITHM = "HS256"
 

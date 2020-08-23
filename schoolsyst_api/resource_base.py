@@ -4,7 +4,8 @@ from typing import Any
 
 from arango.database import StandardDatabase
 from fastapi import HTTPException, Response, status
-from schoolsyst_api.models import OBJECT_KEY_FORMAT, ObjectBareKey, User
+from schoolsyst_api.accounts.models import User
+from schoolsyst_api.models import OBJECT_KEY_FORMAT, ObjectBareKey
 
 
 class ResourceRoutesGenerator:

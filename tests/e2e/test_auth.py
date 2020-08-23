@@ -3,7 +3,7 @@ import json
 from arango.database import StandardDatabase
 from fastapi import status
 from isodate import isodatetime
-from schoolsyst_api.models import User
+from schoolsyst_api.accounts.models import User
 from tests import authed_request, client, database_mock, mocks
 from tests.mocks import ALICE_PASSWORD
 

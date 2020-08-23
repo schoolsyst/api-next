@@ -13,9 +13,9 @@ from schoolsyst_api.accounts import (
     router,
     verify_jwt_token,
 )
+from schoolsyst_api.accounts.models import User, UserKey
 from schoolsyst_api.accounts.password_reset import VALID_FOR
 from schoolsyst_api.accounts.users import get_current_user
-from schoolsyst_api.models import User, UserKey
 
 load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")

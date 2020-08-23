@@ -2,7 +2,7 @@ import json
 
 from arango.database import StandardDatabase
 from fastapi import status
-from schoolsyst_api.models import HomeworkType
+from schoolsyst_api.homework.models import HomeworkType
 from tests import authed_request, client, database_mock, insert_mocks, mocks
 from tests.mocks import ALICE_PASSWORD
 

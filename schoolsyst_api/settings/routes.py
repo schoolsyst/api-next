@@ -3,28 +3,14 @@ from datetime import datetime
 from typing import Any
 
 from arango.database import StandardDatabase
-from fastapi import Depends, status
-from fastapi.responses import Response
+from fastapi import Depends
 from fastapi_utils.inferring_router import InferringRouter
-from schoolsyst_api import database
+from schoolsyst_api import database, settings
+from schoolsyst_api.accounts.models import User
 from schoolsyst_api.accounts.users import get_current_confirmed_user
-from schoolsyst_api.models import InSettings, SettingKey, Settings, User
+from schoolsyst_api.settings.models import InSettings, SettingKey, Settings
 
 router = InferringRouter()
-
-
-def get(
-    db: StandardDatabase = Depends(database.get),
-    current_user: User = Depends(get_current_confirmed_user),
-) -> Settings:
-    doc = db.collection("settings").get(current_user.key)
-    # If the user has no settings tied to him, create them with the default values.
-    if doc is None:
-        db.collection("settings").insert(
-            Settings(key=current_user.key).json(by_alias=True)
-        )
-        return Response(Settings(**doc), status_code=status.HTTP_201_CREATED)
-    return Settings(**doc)
 
 
 @router.get("/default_settings")
@@ -33,7 +19,7 @@ def get_default_settings() -> InSettings:
 
 
 @router.get("/settings")
-def read_settings(settings: Settings = Depends(get)) -> Settings:
+def read_settings(settings: Settings = Depends(settings.get)) -> Settings:
     return settings
 
 
@@ -41,7 +27,7 @@ def read_settings(settings: Settings = Depends(get)) -> Settings:
 def update_some_settings(
     changes: InSettings,
     db: StandardDatabase = Depends(database.get),
-    settings: Settings = Depends(get),
+    settings: Settings = Depends(settings.get),
 ) -> Settings:
     updated_settings = {
         **json.loads(settings.json()),
