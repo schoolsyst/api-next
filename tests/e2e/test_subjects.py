@@ -2,12 +2,8 @@ import json
 
 from arango.database import StandardDatabase
 from fastapi import status
-from tests import ALICE_PASSWORD, authed_request, client, database_mock, mocks
-
-
-def create_users(db: StandardDatabase):
-    db.collection("users").insert(mocks.users.alice.json(by_alias=True))
-    db.collection("users").insert(mocks.users.john.json(by_alias=True))
+from tests import authed_request, client, database_mock, insert_mocks, mocks
+from tests.mocks import ALICE_PASSWORD
 
 
 def test_list_subjects():
@@ -15,14 +11,8 @@ def test_list_subjects():
         db: StandardDatabase
 
         assert db.collection("subjects").all().count() == 0
-        create_users(db)
-        db.collection("subjects").insert(mocks.subjects.français.json(by_alias=True))
-        db.collection("subjects").insert(
-            mocks.subjects.mathematiques.json(by_alias=True)
-        )
-        db.collection("subjects").insert(
-            mocks.subjects.sciences_de_l_ingénieur.json(by_alias=True)
-        )
+        insert_mocks(db, "users")
+        insert_mocks(db, "subjects")
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.get("/subjects/", **params)
@@ -40,16 +30,17 @@ def test_list_subjects():
 
 
 def test_read_subject_not_authed():
-    response = client.get("/subjects/")
+    with database_mock():
+        response = client.get("/subjects/")
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 def test_read_subject_not_found():
     with database_mock() as db:
         db: StandardDatabase
 
-        create_users(db)
+        insert_mocks(db, "users")
         db.collection("subjects").insert(mocks.subjects.mathematiques.json())
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
@@ -62,7 +53,7 @@ def test_read_subject_not_found():
 def test_read_subject_not_owned_by_current_user():
     with database_mock() as db:
         db: StandardDatabase
-        create_users(db)
+        insert_mocks(db, "users")
         db.collection("subjects").insert(mocks.subjects.sciences_de_l_ingénieur.json())
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
@@ -77,8 +68,8 @@ def test_read_subject_not_owned_by_current_user():
 def test_read_subject_ok():
     with database_mock() as db:
         db: StandardDatabase
-        create_users(db)
-        db.collection("subjects").insert(mocks.subjects.mathematiques.json())
+        insert_mocks(db, "users")
+        insert_mocks(db, "subjects")
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.get(
@@ -92,7 +83,7 @@ def test_read_subject_ok():
 def test_create_subject():
     with database_mock() as db:
         db: StandardDatabase
-        create_users(db)
+        insert_mocks(db, "users")
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.post(
@@ -126,18 +117,18 @@ def test_create_subject():
 def test_update_a_subject():
     with database_mock() as db:
         db: StandardDatabase
-        create_users(db)
-        db.collection("subjects").insert(mocks.subjects.français.json())
+        insert_mocks(db, "users")
+        insert_mocks(db, "subjects")
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.patch(
                 f"/subjects/{mocks.subjects.français.object_key}",
-                json={"color": "green", "name": "François"},
+                json={"name": "François"},
                 **params,
             )
 
             assert response.status_code == 200
-            assert response.json()["color"] == "green"
+            assert response.json()["color"] == mocks.subjects.français.color
             assert response.json()["name"] == "François"
             assert response.json()["slug"] == "francois"
 
@@ -145,7 +136,7 @@ def test_update_a_subject():
 def test_delete_subject():
     with database_mock() as db:
         db: StandardDatabase
-        create_users(db)
+        insert_mocks(db, "users")
         db.collection("subjects").insert(mocks.subjects.mathematiques.json())
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.delete(

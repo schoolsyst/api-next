@@ -4,7 +4,8 @@ from arango.database import StandardDatabase
 from fastapi import status
 from isodate import isodatetime
 from schoolsyst_api.models import User
-from tests import ALICE_PASSWORD, authed_request, client, database_mock, mocks
+from tests import authed_request, client, database_mock, mocks
+from tests.mocks import ALICE_PASSWORD
 
 
 def test_read_users_self_not_logged_in():
