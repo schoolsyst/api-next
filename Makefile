@@ -7,7 +7,7 @@ dev:
 
 DEPENDENCY_GRAPH.png:
 	poetry run \
-		pydeps schoolsyst_api --only schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow -x schoolsyst_api.{database,models}
+		pydeps schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow --keep-target-cluster --only schoolsyst_api
 
 check-dead:
 	poetry run \
@@ -24,7 +24,6 @@ test:
 
 tidy:
 	poetry run \
-
 		autoflake --remove-all-unused-imports --expand-star-imports --in-place **.py \
 	&& poetry run \
 		black **.py
