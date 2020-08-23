@@ -70,7 +70,7 @@ class ResourceRoutesGenerator:
             **json.loads(changes.json(exclude_unset=True)),
             "updated_at": datetime.now().isoformat(sep="T"),
         }
-        new_subject = db.collection("subjects").update(
+        new_subject = db.collection(self.name_pl).update(
             updated_subject, return_new=True
         )["new"]
         return self.model_out(**new_subject)
