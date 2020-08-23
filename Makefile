@@ -1,7 +1,7 @@
 .PHONY: requirements.txt, DEPENDENCY_GRAPH.png
 
 dev:
-	sudo systemctl start arangodb3 && \
+	sudo systemctl start arangodb3; \
 	poetry run \
 		uvicorn schoolsyst_api.main:api --reload
 
