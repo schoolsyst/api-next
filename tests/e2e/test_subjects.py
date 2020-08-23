@@ -128,7 +128,7 @@ def test_update_a_subject():
             )
 
             assert response.status_code == 200
-            assert response.json()["color"] == mocks.subjects.français.color
+            assert response.json()["color"] == str(mocks.subjects.français.color)
             assert response.json()["name"] == "François"
             assert response.json()["slug"] == "francois"
 

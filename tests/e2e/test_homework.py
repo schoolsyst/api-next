@@ -53,7 +53,7 @@ def test_read_homework_not_found():
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.get(
-                f"/homework/{mocks.homework.coursework_français_completed_alice.object_key}/",
+                f"/homework/{mocks.homework.coursework_français_completed_alice.object_key}",
                 **params,
             )
             assert response.status_code == 404
