@@ -7,7 +7,7 @@ dev:
 
 DEPENDENCY_GRAPH.png:
 	poetry run \
-		pydeps schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow --keep-target-cluster --only schoolsyst_api
+		pydeps schoolsyst_api --only schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow -x schoolsyst_api.{database,models}
 
 check-dead:
 	poetry run \
