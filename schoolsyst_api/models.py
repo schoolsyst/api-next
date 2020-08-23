@@ -1,8 +1,19 @@
-from datetime import date, datetime, time
-from enum import Enum
+"""
+Models for both the API's JSON interface and the database's documents.
+
+Some prefixes to the model's names indicate particular variants of that model:
+
+- "In" — fields required for the creation of an object (via POST)
+- "DB" — model of the document stored in the database
+- ""
+"""
+
+from datetime import date, datetime, time, timedelta
+from enum import Enum, auto
 from typing import Any, Dict, List, Literal, Optional, Set, Union
 
 import nanoid
+from fastapi_utils.enums import StrEnum
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import EmailStr, Field, PositiveFloat, PositiveInt, confloat, constr
 from pydantic.color import Color
@@ -126,28 +137,59 @@ class OwnedResource(BaseModel):
         return f"{self.owner_key}:{self.object_key}"
 
 
-class DatetimeRange(BaseModel):
+class DateRange(BaseModel):
+    """
+    `start` is inclusive, `end` is exclusive.
+    (just like python's `range()`)
+    """
+
+    start: date
+    end: date
+
+    @property
+    def duration(self) -> timedelta:
+        return self.end - self.start
+
+    def __contains__(self, o: Union[date, "DateRange"]) -> bool:
+        if isinstance(o, date):
+            return self.start <= o < self.end
+        return self.start <= o.start and self.end >= o.end
+
+    def __xor__(self, o: "DateRange") -> "DateRange":
+        return DateRange(
+            start=o.start if o.start >= self.start else self.start,
+            end=o.end if o.end >= self.end else self.end,
+        )
+
+    def __or__(self, o: "DateRange") -> "DateRange":
+        return DateRange(
+            start=o.start if o.start <= self.start else self.start,
+            end=o.end if o.end >= self.end else self.end,
+        )
+
+
+class DatetimeRange(DateRange):
     start: datetime
     end: datetime
 
 
-class DateRange(BaseModel):
-    start: date
-    end: date
+class ThemeName(StrEnum):
+    light = auto()
+    dark = auto()
+    auto = auto()
 
 
-class ThemeName(str, Enum):
-    light = "light"
-    dark = "dark"
-    auto = "auto"
+class WeekType(StrEnum):
+    even = auto()
+    odd = auto()
 
 
-class WeekType(str, Enum):
-    even = "even"
-    odd = "odd"
+class InSettings(BaseModel):
+    """
+    Each user has exactly one persistent setting tied to him.
+    Thus, the settings' "_key" is the owner user's
+    """
 
-
-class Settings(OwnedResource):
     theme: ThemeName = ThemeName.auto
     """
     Configures how the year is split.
@@ -157,7 +199,12 @@ class Settings(OwnedResource):
         {start: <start of the 2nd semester>, end: <end of the year>}
     ]
     """
-    year_layout: List[DateRange]
+    year_layout: List[DateRange] = [
+        DateRange(
+            start=datetime(datetime.today().year, 1, 1),
+            end=datetime(datetime.today().year, 12, 31),
+        )
+    ]
     """
     Whether the first week of school is an ‘odd’-type week of ‘even’-type.
     """
@@ -166,12 +213,30 @@ class Settings(OwnedResource):
     What unit is used to display grades.
     Note that grades are stored as floats in [0; 1],
     no matter what this value is set to.
+    This is solely used for user interfaces.
     """
-    grades_unit: Union[PositiveFloat, PositiveInt]
+    grades_unit: PositiveFloat = 100
     """
     Holidays, exceptional weeks without courses, school trips, etc.
     """
     offdays: List[DateRange] = []
+
+    def in_offdays(self, o: date) -> bool:
+        return any(o in offday_range for offday_range in self.offdays)
+
+
+# TODO: autonatic Enum with list of attrs of InSettings as values
+class SettingKey(StrEnum):
+    theme = auto()
+    year_layout = auto()
+    starting_week_type = auto()
+    grades_unit = auto()
+    offdays = auto()
+
+
+class Settings(InSettings):
+    key: UserKey = Field(..., alias="_key")
+    updated_at: Optional[datetime] = None
 
 
 class InSubject(BaseModel):
@@ -184,6 +249,11 @@ class InSubject(BaseModel):
     @property
     def slug(self) -> str:  # unique
         return slugify(self.name)
+
+
+class PatchSubject(InSubject):
+    name: Optional[str] = None
+    color: Optional[Color] = None
 
 
 class Subject(InSubject, OwnedResource):
@@ -204,24 +274,24 @@ class Quiz(OwnedResource):
     # sessions: List[QuizSession] = []
 
 
-class NoteType(str, Enum):
-    html = "html"
-    markdown = "markdown"
-    asciidoc = "asciidoc"
-    external = "external"
+class NoteType(StrEnum):
+    html = auto()
+    markdown = auto()
+    asciidoc = auto()
+    external = auto()
 
 
-class NoteContentType(str, Enum):
-    pdf = "pdf"
-    tex = "tex"
-    docx = "docx"
-    txt = "txt"
-    odt = "odt"
-    markdown = "markdown"
-    asciidoc = "asciidoc"
-    rst = "rst"
-    epub = "epub"
-    mediawiki = "mediawiki"
+class NoteContentType(StrEnum):
+    pdf = auto()
+    tex = auto()
+    docx = auto()
+    txt = auto()
+    odt = auto()
+    markdown = auto()
+    asciidoc = auto()
+    rst = auto()
+    epub = auto()
+    mediawiki = auto()
 
 
 class Note(OwnedResource):
@@ -245,21 +315,36 @@ class Grade(OwnedResource):
     obtained_at: Optional[datetime] = None
 
 
-class HomeworkType(str, Enum):
-    test = "test"
-    coursework = "coursework"
-    to_bring = "to_bring"
-    exercise = "exercise"
+class HomeworkType(StrEnum):
+    test = auto()
+    coursework = auto()
+    to_bring = auto()
+    exercise = auto()
 
 
-class Homework(OwnedResource):
+class InHomework(BaseModel):
     title: str
     subject_key: ObjectKey
     type: HomeworkType
-    completed_at: datetime
-    progress: Primantissa
-    notes: List[Note] = []
-    grades: List[Grade] = []
+    details: str = ""
+    completed_at: Optional[datetime] = None
+    progress: Primantissa = 0
+    notes: List[ObjectKey] = []
+    grades: List[ObjectKey] = []
+
+    @property
+    def completed(self) -> bool:
+        return self.progress >= 1
+
+
+class PatchHomework(InHomework):
+    title: Optional[str] = None
+    subject_key: Optional[ObjectKey] = None
+    type: Optional[HomeworkType] = None
+
+
+class Homework(InHomework, OwnedResource):
+    pass
 
 
 class ISOWeekDay(int, Enum):
@@ -272,7 +357,7 @@ class ISOWeekDay(int, Enum):
     sunday = 7
 
 
-class Event(OwnedResource):
+class InEvent(BaseModel):
     subject_key: ObjectKey
     start: time
     end: time
@@ -282,7 +367,11 @@ class Event(OwnedResource):
     on_odd_weeks: bool = True
 
 
-class EventMutationInterpretation(str, Enum):
+class Event(OwnedResource, InEvent):
+    pass
+
+
+class EventMutationInterpretation(StrEnum):
     """
     #### edit
 
@@ -312,17 +401,17 @@ class EventMutationInterpretation(str, Enum):
     e.g. The 2020-01-13 Chemistry course from 15:50 to 16:45 is cancelled
     """
 
-    edit = "edit"
-    reschedule = "reschedule"
-    addition = "addition"
-    deletion = "deletion"
+    edit = auto()
+    reschedule = auto()
+    addition = auto()
+    deletion = auto()
 
 
 class EventMutation(OwnedResource):
     event_key: Optional[ObjectKey] = None
     subject_key: Optional[ObjectKey] = None
-    deleted_in: Optional[DateRange] = None
-    added_in: Optional[DateRange] = None
+    deleted_in: Optional[DatetimeRange] = None
+    added_in: Optional[DatetimeRange] = None
     room: Optional[str] = None
 
     @property
