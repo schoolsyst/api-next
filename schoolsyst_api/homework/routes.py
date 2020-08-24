@@ -36,7 +36,7 @@ def list_homework(
     """
     homework = helper.list(db, current_user)
     if not all:
-        homework = [h for h in homework if not Homework(**h).completed]
+        homework = [h for h in homework if not h.completed]
     return homework
 
 
