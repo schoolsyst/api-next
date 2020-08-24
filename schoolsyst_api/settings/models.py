@@ -30,8 +30,8 @@ class InSettings(BaseModel):
     """
     year_layout: List[DateRange] = [
         DateRange(
-            start=datetime(datetime.today().year, 1, 1),
-            end=datetime(datetime.today().year, 12, 31),
+            start=date(datetime.today().year, 1, 1),
+            end=date(datetime.today().year, 12, 31),
         )
     ]
     """

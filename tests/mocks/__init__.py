@@ -1,8 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from schoolsyst_api.accounts.auth import hash_password
 from schoolsyst_api.accounts.models import DBUser
 from schoolsyst_api.homework.models import Homework, HomeworkType
+from schoolsyst_api.models import DateRange, WeekType
+from schoolsyst_api.settings.models import Settings, ThemeName
 from schoolsyst_api.subjects.models import Subject
 
 ALICE_PASSWORD = "fast-unicorn-snails-dragon5"
@@ -85,4 +87,48 @@ class homework:
         title="Cinématique",
         type=HomeworkType.test,
         details="Aliquip sit aute ea pariatur.",
+    )
+
+
+class settings:
+    alice = Settings(
+        _key=users.alice.key,
+        theme=ThemeName.dark,
+        year_layout=[
+            DateRange(start=date(2020, 9, 1), end=date(2020, 2, 24)),
+            DateRange(start=date(2021, 4, 20), end=date(2021, 5, 9)),
+            DateRange(start=date(2021, 6, 2), end=date(2021, 7, 6)),
+        ],
+        starting_week_type=WeekType.even,
+        grades_unit=20,
+        offdays=[
+            DateRange(start=date(2020, 10, 21), end=date(2020, 11, 4)),
+            DateRange(start=date(2020, 12, 23), end=date(2020, 1, 6)),
+            DateRange(start=date(2021, 2, 10), end=date(2021, 2, 24)),
+            DateRange(start=date(2021, 4, 6), end=date(2021, 4, 20)),
+            DateRange(start=date(2021, 5, 1), end=date(2021, 5, 2)),
+            DateRange(start=date(2021, 5, 8), end=date(2021, 5, 9)),
+            DateRange(start=date(2021, 5, 21), end=date(2021, 5, 25)),
+            DateRange(start=date(2021, 6, 1), end=date(2021, 6, 2)),
+        ],
+    )
+
+    john = Settings(
+        _key=users.john.key,
+        theme=ThemeName.light,
+        year_layout=[
+            DateRange(start=date(2020, 9, 2), end=date(2020, 2, 24)),
+            DateRange(start=date(2021, 4, 20), end=date(2021, 5, 9)),
+            DateRange(start=date(2021, 6, 2), end=date(2021, 7, 14)),
+        ],
+        starting_week_type=WeekType.odd,
+        grades_unit=100,
+        offdays=[
+            DateRange(start=date(2020, 10, 21), end=date(2020, 11, 4)),
+            DateRange(start=date(2020, 12, 23), end=date(2020, 1, 6)),
+            DateRange(start=date(2021, 2, 10), end=date(2021, 2, 24)),
+            DateRange(start=date(2021, 4, 6), end=date(2021, 4, 20)),
+            DateRange(start=date(2021, 5, 1), end=date(2021, 5, 2)),
+            DateRange(start=date(2021, 5, 8), end=date(2021, 5, 9)),
+        ],
     )
