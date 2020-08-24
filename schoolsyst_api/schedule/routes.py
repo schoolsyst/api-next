@@ -9,6 +9,7 @@ from schoolsyst_api.accounts.models import User
 from schoolsyst_api.accounts.users import get_current_confirmed_user
 from schoolsyst_api.models import DatetimeRange, ObjectBareKey, WeekType
 from schoolsyst_api.resource_base import ResourceRoutesGenerator
+from schoolsyst_api.schedule import current_week_type
 from schoolsyst_api.schedule.models import (
     Course,
     Event,
@@ -25,25 +26,15 @@ helper = ResourceRoutesGenerator(
 )
 
 
-def current_week_type(settings: Settings, current_date: date) -> WeekType:
-    is_initial_weektype = False
-    for i, _ in enumerate(
-        daterange(settings.year_layout[0].start, current_date, "weeks")
-    ):
-        is_initial_weektype = i % 2 == 0
-
-    if is_initial_weektype:
-        return settings.starting_week_type
-    return (
-        WeekType.even if settings.starting_week_type == WeekType.odd else WeekType.odd
-    )
-
-
 @router.get("/weektype_of/{date}")
 def get_current_week_type(
     date: date, settings: Settings = Depends(settings.get)
 ) -> WeekType:
-    return current_week_type(settings=settings, current_date=date)
+    return current_week_type(
+        starting_week_type=settings.starting_week_type,
+        year_start=settings.year_layout[0].start,
+        current_date=date,
+    )
 
 
 @router.post("/events/", status_code=status.HTTP_201_CREATED)

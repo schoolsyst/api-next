@@ -34,9 +34,14 @@ def daterange(start: D, end: D, precision: str = "days") -> Iterator[D]:
     Returns a range of datetime objects between start and end.
     The range contains each `precision` between `start` (inclusive) and `end` (exclusive).
 
-    `precision` must be one of: days, seconds, microseconds.
+    `precision` must be one of: days, seconds, microseconds, weeks.
     """
-    # TODO: allow milliseconds, minutes, hours or weeks for `precision`
-    range_of_precision = getattr(end - start, precision)
+    # TODO: allow milliseconds, minutes or hours for `precision`
+    if precision == "weeks":
+        range_of_precision = (end - start).days // 7
+    else:
+        range_of_precision = getattr(end - start, precision)
     for n in range(int(range_of_precision) + 1):
+        if precision == "weeks":
+            n *= 7
         yield start + timedelta(**{precision: n})
