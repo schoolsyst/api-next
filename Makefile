@@ -15,6 +15,7 @@ check-dead:
 
 requirements.txt:
 	poetry export -f requirements.txt > requirements.txt
+	poetry export -f requirements.txt --dev > requirements_dev.txt
 
 test:
 	poetry run \
