@@ -1,4 +1,4 @@
-.PHONY: requirements.txt, DEPENDENCY_GRAPH.png
+.PHONY: requirements.txt DEPENDENCY_GRAPH.png
 
 dev:
 	sudo systemctl start arangodb3; \
