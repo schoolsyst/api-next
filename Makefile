@@ -5,6 +5,9 @@ dev:
 	poetry run \
 		uvicorn schoolsyst_api.main:api --reload
 
+update:
+	poetry update && $(MAKE) requirements.txt
+
 DEPENDENCY_GRAPH.png:
 	poetry run \
 		pydeps schoolsyst_api --only schoolsyst_api -o DEPENDENCY_GRAPH.png -T png --rmprefix schoolsyst_api. --noshow -x schoolsyst_api.{database,models}
