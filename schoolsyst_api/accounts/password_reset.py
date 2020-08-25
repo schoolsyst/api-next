@@ -117,7 +117,7 @@ async def post_users_password_reset(
         return HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This password is not strong enough",
-            headers={"X-See": "GET /password-analysis/"},
+            headers={"X-See": "GET /password_analysis/"},
         )
     # validate the token
     if not verify_jwt_token(change_data.request_token, JWT_SUB_FORMAT, user.username):

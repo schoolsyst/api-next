@@ -158,7 +158,7 @@ def test_password_analysis():
     # We don't test extensively,
     # it's up to python-zxcvbn to test their own library.
     response = client.get(
-        "/password-analysis/",
+        "/password_analysis/",
         params={
             "password": "hunter2",
             "email": "whatever@itdoesntcountforth.is",

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from arango.database import StandardDatabase
 from dotenv import load_dotenv
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Response, status
 from jose import JWTError, jwt
 from pydantic import EmailStr
 from schoolsyst_api import database
@@ -48,27 +48,28 @@ def is_email_taken(db: StandardDatabase, email: EmailStr) -> bool:
     return db.collection("users").find({"email": email}).count() > 0
 
 
+get_current_user_responses = {
+    401: {"description": "Invalid authentication credentials"}
+}
+
+
 @router.get(
-    "/users/current", summary="Get the currently logged-in user",
+    "/users/current",
+    summary="Get the currently logged-in user",
+    responses=get_current_user_responses,
 )
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: StandardDatabase = Depends(database.get)
 ) -> User:
     """
-    Dependency to get the current user from `oauth2_scheme`'s token.
-    The (JWT) token is decoded, the username is extracted from its payload,
-    then the user is looked up by username from the database and returned.
+    Get the current user.
 
-    For security concerns, the pydantic model returned
-    does not include the password hash.
-
-    A 401 Unauthorized exception is automatically raised if any problem arises
-    during token decoding or user lookup
+    A 401 Unauthorized exception is raised if any problem arises during token decoding or user lookup
     """
     # exception used everytime an error is encountered during verification
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid authentication credentials",
+        detail=get_current_user_responses[401]["description"],
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -133,7 +134,7 @@ def create_user_account(
     """
     Create a user account.
     Emails and usernames are unique, usernames are _not_ case-sensitive.
-    The password must be strong enough. See GET /password-analysis/
+    The password must be strong enough. See GET /password_analysis/
     """
     # Check if the username is not disallowed
     if is_username_disallowed(user_in.username):
@@ -175,8 +176,18 @@ def create_user_account(
     return User(**db_user.dict(by_alias=True))
 
 
-@router.delete("/users/current")
-async def delete_currently_logged_in_user(
+delete_current_user_responses = {
+    400: {"description": "Set really_delete to True to confirm deletion"},
+}
+
+
+@router.delete(
+    "/users/current",
+    summary="Delete currently logged-in user",
+    responses=delete_current_user_responses,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_current_user(
     user: User = Depends(get_current_user),
     really_delete: bool = False,
     db: StandardDatabase = Depends(database.get),
@@ -198,9 +209,11 @@ async def delete_currently_logged_in_user(
 
         db.collection(c).delete_match({"owner_key": user.key})
 
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-@router.get("/all-personal-data")
-async def get_all_personal_data(
+
+@router.get("/personal_data_archive")
+async def get_personal_data_archive(
     user: User = Depends(get_current_confirmed_user),
     db: StandardDatabase = Depends(database.get),
 ) -> dict:
