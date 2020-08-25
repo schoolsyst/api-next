@@ -2,7 +2,7 @@
 
 # schoolsyst's (next) API
 
-![Build status](https://travis-ci.com/schoolsyst/api-next.svg?branch=master&status=passed) ![Code coverage](https://img.shields.io/codecov/c/github/schoolsyst/api-next)
+![Build status](https://travis-ci.com/schoolsyst/api-next.svg?branch=master&status=passed) ![Code coverage](https://img.shields.io/codecov/c/github/schoolsyst/api-next) [![time tracker](https://wakatime.com/badge/github/schoolsyst/api-next.svg)](https://wakatime.com/badge/github/schoolsyst/api-next)
 
 Schoolsyst's next API implementation, built with [FastAPI](https://fastapi.tiangolo.com)
 
