@@ -9,6 +9,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from schoolsyst_api import __version__, accounts, cors, database, docs
+from schoolsyst_api.docs import edit_openapi_spec
 from schoolsyst_api.env import EnvironmentVariables
 
 # It all begins here!
@@ -32,6 +33,8 @@ api.include_router(schoolsyst_api.subjects.routes.router, tags=["Subjects"])
 api.include_router(schoolsyst_api.homework.routes.router, tags=["Homework"])
 api.include_router(schoolsyst_api.settings.routes.router, tags=["Settings"])
 api.include_router(schoolsyst_api.schedule.routes.router, tags=["Schedule"])
+# Modify the OpenAPI spec
+edit_openapi_spec(api)
 
 if __name__ == "__main__":
     uvicorn.run(api, host="0.0.0.0", port=8000)
