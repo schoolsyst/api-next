@@ -146,8 +146,8 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/password-analysis/")
-def analyze_a_password(
+@router.get("/password-analysis")
+def get_password_analysis(
     password: str, email: EmailStr, username: UsernameStr
 ) -> Dict[str, Any]:
     """

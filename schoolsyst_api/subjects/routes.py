@@ -19,7 +19,7 @@ helper = ResourceRoutesGenerator(
 
 
 @router.post("/subjects/", status_code=status.HTTP_201_CREATED)
-def create_a_subject(
+def create_subject(
     subjects: InSubject,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
@@ -36,7 +36,7 @@ def list_subjects(
 
 
 @router.patch("/subjects/{key}")
-def update_a_subject(
+def update_subject(
     key: ObjectBareKey,
     changes: PatchSubject,
     db: StandardDatabase = Depends(database.get),
@@ -46,7 +46,7 @@ def update_a_subject(
 
 
 @router.get("/subjects/{key}")
-def get_a_subject(
+def get_subject(
     key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
@@ -66,7 +66,7 @@ delete_a_subject_responses = {
     responses=delete_a_subject_responses,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_a_subject(
+def delete_subject(
     key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),

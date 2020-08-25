@@ -17,7 +17,7 @@ helper = ResourceRoutesGenerator(
 
 
 @router.post("/homework/", status_code=status.HTTP_201_CREATED)
-def create_a_homework(
+def create_homework(
     homework: InHomework,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
@@ -41,7 +41,7 @@ def list_homework(
 
 
 @router.patch("/homework/{key}")
-def update_a_homework(
+def update_homework(
     key: ObjectBareKey,
     changes: PatchHomework,
     db: StandardDatabase = Depends(database.get),
@@ -51,7 +51,7 @@ def update_a_homework(
 
 
 @router.get("/homework/{key}")
-def get_a_homework(
+def get_homework(
     key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
@@ -71,7 +71,7 @@ delete_a_homework_responses = {
     responses=delete_a_homework_responses,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_a_subject(
+def delete_homework(
     key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),

@@ -11,8 +11,8 @@ from schoolsyst_api import database
 from schoolsyst_api.accounts import get_user, router
 from schoolsyst_api.accounts.auth import (
     TokenData,
-    analyze_a_password,
     extract_username_from_jwt_payload,
+    get_password_analysis,
     hash_password,
     is_password_strong_enough,
     oauth2_scheme,
@@ -48,6 +48,9 @@ def is_email_taken(db: StandardDatabase, email: EmailStr) -> bool:
     return db.collection("users").find({"email": email}).count() > 0
 
 
+@router.get(
+    "/users/current", summary="Get the currently logged-in user",
+)
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: StandardDatabase = Depends(database.get)
 ) -> User:
@@ -108,13 +111,6 @@ async def get_current_confirmed_user(
     return current_user
 
 
-@router.get(
-    "/users/self", summary="Get the currently logged-in user",
-)
-async def read_users_self(current_user: User = Depends(get_current_user)) -> User:
-    return current_user
-
-
 post_users_error_responses = {
     400: {
         "description": "This username is already taken"
@@ -158,7 +154,7 @@ def create_user_account(
             detail="This email is already taken",
         )
     # Check if password is strong enough
-    password_analysis = analyze_a_password(**user_in.dict())
+    password_analysis = get_password_analysis(**user_in.dict())
     if password_analysis and not is_password_strong_enough(password_analysis):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -179,7 +175,7 @@ def create_user_account(
     return User(**db_user.dict(by_alias=True))
 
 
-@router.delete("/users/self")
+@router.delete("/users/current")
 async def delete_currently_logged_in_user(
     user: User = Depends(get_current_user),
     really_delete: bool = False,

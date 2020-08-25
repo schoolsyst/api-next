@@ -27,9 +27,7 @@ helper = ResourceRoutesGenerator(
 
 
 @router.get("/weektype_of/{date}")
-def get_current_week_type(
-    date: date, settings: Settings = Depends(settings.get)
-) -> WeekType:
+def get_week_type(date: date, settings: Settings = Depends(settings.get)) -> WeekType:
     return current_week_type(
         starting_week_type=settings.starting_week_type,
         year_start=settings.year_layout[0].start,
@@ -38,7 +36,7 @@ def get_current_week_type(
 
 
 @router.post("/events/", status_code=status.HTTP_201_CREATED)
-def create_an_event(
+def create_event(
     events: InEvent,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
@@ -55,7 +53,7 @@ def list_events(
 
 
 @router.get("/courses/{start}/{end}/")
-def list_courses_in_date_range(
+def list_courses(
     start: date,
     end: date,
     include: List[EventMutationInterpretation] = Query(
@@ -95,7 +93,7 @@ def list_courses_in_date_range(
     ]
 
     if week_types == "auto":
-        week_types = [get_current_week_type(start, settings)]
+        week_types = [get_week_type(start, settings)]
 
     courses: List[Course] = []
     for day in daterange(start, end, precision="days"):
@@ -151,7 +149,7 @@ def list_courses_in_date_range(
 
 
 @router.patch("/events/{key}")
-def update_an_event(
+def update_event(
     key: ObjectBareKey,
     changes: InEvent,
     db: StandardDatabase = Depends(database.get),
@@ -161,7 +159,7 @@ def update_an_event(
 
 
 @router.get("/events/{key}")
-def get_an_event(
+def get_event(
     key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
@@ -181,7 +179,7 @@ delete_an_event_responses = {
     responses=delete_an_event_responses,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_an_event(
+def delete_event(
     key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),

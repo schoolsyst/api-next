@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from schoolsyst_api import database
 from schoolsyst_api.accounts import create_jwt_token, router, verify_jwt_token
 from schoolsyst_api.accounts.auth import (
-    analyze_a_password,
+    get_password_analysis,
     hash_password,
     is_password_strong_enough,
 )
@@ -110,7 +110,9 @@ async def post_users_password_reset(
     (something like `https://app.schoolsyst.com/password-reset/{request_token}`) after
     performing a `POST /users/password-reset-request`.
     """
-    analysis = analyze_a_password(change_data.new_password, user.email, user.username)
+    analysis = get_password_analysis(
+        change_data.new_password, user.email, user.username
+    )
     if analysis and not is_password_strong_enough(analysis):
         return HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

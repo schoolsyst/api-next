@@ -12,7 +12,7 @@ def test_read_users_self_not_logged_in():
     with database_mock() as db:
         db.collection("users").insert(mocks.users.alice.json(by_alias=True))
         # Try to access user without logging in
-        response = client.get("/users/self")
+        response = client.get("/users/current")
         assert response.status_code == 401
 
 
@@ -53,7 +53,7 @@ def test_read_users_self_logged_in():
         db.collection("users").insert(mocks.users.alice.json(by_alias=True))
 
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
-            response = client.get("/users/self/", **params)
+            response = client.get("/users/current", **params)
 
         assert response.status_code == 200
         assert response.json() == json.loads(

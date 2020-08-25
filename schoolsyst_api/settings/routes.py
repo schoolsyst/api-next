@@ -19,12 +19,12 @@ def get_default_settings() -> InSettings:
 
 
 @router.get("/settings")
-def read_settings(settings: Settings = Depends(settings.get)) -> Settings:
+def get_settings(settings: Settings = Depends(settings.get)) -> Settings:
     return settings
 
 
 @router.patch("/settings")
-def update_some_settings(
+def update_settings(
     changes: InSettings,
     db: StandardDatabase = Depends(database.get),
     settings: Settings = Depends(settings.get),
@@ -52,7 +52,7 @@ def reset_all_settings(
 
 
 @router.delete("/settings/{setting_key}")
-def reset_a_setting(
+def reset_setting(
     setting_key: SettingKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
