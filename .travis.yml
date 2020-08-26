@@ -18,7 +18,7 @@ install:
   - poetry install
 
 script:
-  - ls /home/travis/virtualenv/python3.8.0/lib/python3.8/site-packages
+  - cat /home/travis/virtualenv/python3.8.0/lib/python3.8/site-packages/arango/client.py
   - make test
 
 after_success:
