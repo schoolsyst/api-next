@@ -6,4 +6,4 @@ class EnvironmentVariables(BaseModel):
     GITHUB_USERNAME: str
     GITHUB_TOKEN: str
     ARANGODB_USERNAME: str
-    ARANGODB_PASSWORD: str
+    ARANGO_ROOT_PASSWORD: str

@@ -1,14 +1,26 @@
-version: '3.7'
+version: "3.7"
 
 services:
   api:
     tty: yes
     build: ./
     command: poetry run uvicorn schoolsyst_api.main:api --reload --workers 1 --host 0.0.0.0 --port 8000
+    restart: always
     volumes:
       - ./:/usr/src/app
     ports:
       - 8002:8000
+    links:
+      - database
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
+      - DB_HOST=database
+    depends_on:
+      - database
+
+  database:
+    image: arangodb/arangodb:3.6.5
+    env_file: .env
+    ports:
+      - 8003:8529
