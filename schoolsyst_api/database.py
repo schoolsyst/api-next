@@ -67,7 +67,9 @@ def initialize(database_name: Optional[str] = None) -> arango.database.StandardD
 # FastAPI will believe database_name is a query parameter.
 def _get(database_name: Optional[str] = None) -> arango.database.StandardDatabase:
     database_name = database_name or _get_default_name()
-    print(f"[ DB ] Logging into database {database_name}")
+    print(
+        f"[ DB ] Logging into database {database_name} at {os.getenv('ARANGODB_HOST')}"
+    )
 
     client = ArangoClient(hosts=os.getenv("ARANGODB_HOST"))
     username, password = (

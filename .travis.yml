@@ -8,6 +8,7 @@ before_install:
   - touch .env
   - echo -ne "SECRET_KEY=\"$SECRET_KEY\"\n" >> .env
   - echo -ne "ARANGODB_USERNAME=\"root\"\n" >> .env
+  - echo -ne "ARANGODB_HOST=\"localhost:8529\"\n" >> .env
   - echo -ne "ARANGO_ROOT_PASSWORD=\"openSesame\"\n" >> .env
   - echo -ne "GITHUB_USERNAME=\"$GITHUB_USERNAME\"\n" >> .env
   - echo -ne "GITHUB_TOKEN=\"$GITHUB_TOKEN\"\n" >> .env
@@ -18,7 +19,6 @@ install:
   - poetry install
 
 script:
-  - cat /home/travis/virtualenv/python3.8.0/lib/python3.8/site-packages/arango/client.py
   - make test
 
 after_success:
