@@ -18,6 +18,7 @@ install:
   - poetry install
 
 script:
+  - ls /home/travis/.cache/pypoetry/virtualenvs/
   - make test
 
 after_success:
