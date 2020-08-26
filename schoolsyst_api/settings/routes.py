@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-from typing import Any
 
 from arango.database import StandardDatabase
 from fastapi import Depends
@@ -30,7 +29,7 @@ def update_settings(
     settings: Settings = Depends(settings.get),
 ) -> Settings:
     updated_settings = {
-        **json.loads(settings.json()),
+        **json.loads(settings.json(by_alias=True)),
         **json.loads(changes.json(exclude_unset=True)),
         "updated_at": datetime.now().isoformat(sep="T"),
     }
@@ -46,8 +45,8 @@ def reset_all_settings(
     current_user: User = Depends(get_current_confirmed_user),
 ) -> Settings:
     # instead of deleting and re-inserting, update with a completely new object.
-    settings = Settings(key=current_user.key, updated_at=datetime.now())
-    db.collection("settings").update(settings.json(by_alias=True))
+    settings = Settings(_key=current_user.key, updated_at=datetime.now())
+    db.collection("settings").update(json.loads(settings.json(by_alias=True)))
     return settings
 
 
@@ -56,7 +55,7 @@ def reset_setting(
     setting_key: SettingKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
-) -> Any:
+) -> Settings:
     default_settings = InSettings()
     new_settings = db.collection("settings").update(
         {
@@ -64,6 +63,6 @@ def reset_setting(
             setting_key: json.loads(default_settings.json())[setting_key],
         },
         return_new=True,
-    )
+    )["new"]
 
-    return new_settings[setting_key]
+    return Settings(**new_settings)
