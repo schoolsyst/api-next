@@ -163,3 +163,27 @@ def test_delete_homework():
             assert response.status_code == status.HTTP_204_NO_CONTENT
             assert not response.text
             assert db.collection("homework").all().count() == 0
+
+
+def test_complete_homework_task():
+    with database_mock() as db:
+        db: StandardDatabase
+        insert_mocks(db, "users")
+        insert_mocks(db, "homework")
+        with authed_request(client, "alice", ALICE_PASSWORD) as params:
+            response = client.put(
+                f"/homework/{mocks.homework.exos_math_not_completed_of_alice.object_key}/complete_task/OwO",
+                **params,
+            )
+
+            assert response.status_code == status.HTTP_200_OK
+            # We didn't remove/add any tasks
+            assert len(response.json()["tasks"]) == len(
+                mocks.homework.exos_math_not_completed_of_alice.tasks
+            )
+            # The task was marked as completed
+            assert [t for t in response.json()["tasks"] if t["key"] == "OwO"][0][
+                "completed"
+            ]
+            # No other task was marked as completed
+            assert len([t for t in response.json()["tasks"] if t["completed"]]) == 1

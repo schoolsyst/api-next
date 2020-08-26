@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import List
 
 from arango.database import StandardDatabase
-from fastapi import Depends, Query, status
+from fastapi import Depends, HTTPException, Query, status
 from fastapi_utils.inferring_router import InferringRouter
 from schoolsyst_api import database
 from schoolsyst_api.accounts.models import User
@@ -47,6 +48,29 @@ def update_homework(
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
 ) -> Homework:
+    return helper.update(db, current_user, key, changes)
+
+
+@router.put("/homework/{key}/complete_task/{task_key}")
+def complete_homework_task(
+    key: ObjectBareKey,
+    task_key: str,
+    db: StandardDatabase = Depends(database.get),
+    current_user: User = Depends(get_current_confirmed_user),
+) -> Homework:
+    homework = helper.get(db, current_user, key)
+    try:
+        task = [t for t in homework.tasks if t.key == task_key][0]
+    except IndexError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No task with key {task_key} in subject",
+        )
+
+    changes = PatchHomework(
+        tasks=[t.dict(by_alias=True) for t in homework.tasks if t.key != task_key]
+        + [{**task.dict(), "completed": True, "completed_at": datetime.now()}]
+    )
     return helper.update(db, current_user, key, changes)
 
 
