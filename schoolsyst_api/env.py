@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import AnyHttpUrl, BaseModel
 
 
 class EnvironmentVariables(BaseModel):
@@ -6,5 +6,5 @@ class EnvironmentVariables(BaseModel):
     GITHUB_USERNAME: str
     GITHUB_TOKEN: str
     ARANGODB_USERNAME: str
-    ARANGODB_HOST: str
+    ARANGODB_HOST: AnyHttpUrl
     ARANGO_ROOT_PASSWORD: str
