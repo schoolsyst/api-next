@@ -139,6 +139,14 @@ version = "3.0.4"
 
 [[package]]
 category = "main"
+description = "Mustache templating language renderer"
+name = "chevron"
+optional = false
+python-versions = "*"
+version = "0.13.1"
+
+[[package]]
+category = "main"
 description = "Composable command line interface toolkit"
 name = "click"
 optional = false
@@ -1028,7 +1036,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "1f318bc4c8d62b545037d45083cc00373624eed3ded4f31ed9baf6b8570c9a4c"
+content-hash = "ca94af47a1d55897b7f967220b787c27e3cc09c9b233be6dee2bde27d8cc2c03"
 lock-version = "1.1"
 python-versions = "^3.8"
 
@@ -1123,6 +1131,10 @@ cfgv = [
 chardet = [
     {file = "chardet-3.0.4-py2.py3-none-any.whl", hash = "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"},
     {file = "chardet-3.0.4.tar.gz", hash = "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"},
+]
+chevron = [
+    {file = "chevron-0.13.1-py3-none-any.whl", hash = "sha256:95b0a055ef0ada5eb061d60be64a7f70670b53372ccd221d1b88adf1c41a9094"},
+    {file = "chevron-0.13.1.tar.gz", hash = "sha256:f95054a8b303268ebf3efd6bdfc8c1b428d3fc92327913b4e236d062ec61c989"},
 ]
 click = [
     {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
