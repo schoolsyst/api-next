@@ -16,15 +16,24 @@ See documentation at <https://beta.api.schoolsyst.com/>
 2. Clone the repository
     ```
     git clone https://github.com/schoolsyst/api-next
+3. Make your `.env` file and fill it with your values:
+    ```
+    cp .env.example .env
+    nano .env
+    ```
 3. Install dependencies
     ```
     poetry install
     ```
-4. [Install ArangoDB](https://www.arangodb.com/download/)
-5. Start arangodb (no need for this if you used the docker image instead)
+4. [Install ArangoDB](https://www.arangodb.com/download/) (no need if you have docker)
+5. Start arangodb
     ```bash
-    sudo systemctl start arangodb3 # with soystemd
-    sudo service arangodb3 start # with systemv init
+    # with soystemd
+    sudo systemctl start arangodb3
+    # with systemv
+    sudo service arangodb3 start
+    # with docker (easier)
+    docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=<your_.env_file's_password> arangodb/arangodb:3.6.5
     ```
 6. Test to make sure everything is alright
     ```
