@@ -1,8 +1,10 @@
 from datetime import timedelta
+from os import getenv
 from pathlib import Path
 from typing import Callable, Literal, Union
 
 import chevron
+import yagmail
 from fastapi import BackgroundTasks, HTTPException, status
 from schoolsyst_api.accounts import create_jwt_token, verify_jwt_token
 from schoolsyst_api.accounts.models import User
@@ -12,9 +14,14 @@ class EmailConfirmedAction:
     name: str
     callback_url: str
     token_valid_for: timedelta
+    email_subject: str
 
     def __init__(
-        self, name: str, callback_url: str, token_valid_for: timedelta,
+        self,
+        name: str,
+        callback_url: str,
+        token_valid_for: timedelta,
+        email_subject: str,
     ) -> None:
         """
         `callback_url` is used as the link to click on in the email.
@@ -23,6 +30,7 @@ class EmailConfirmedAction:
         self.name = name
         self.callback_url = callback_url
         self.token_valid_for = token_valid_for
+        self.email_subject = email_subject
 
     @property
     def jwt_sub_format(self) -> str:
@@ -40,8 +48,15 @@ class EmailConfirmedAction:
 
     @property
     def _send_mail_function(self) -> Callable[[str], bool]:
-        def send_mail(token: str):
-            pass
+        def send_mail(token: str, current_user: User):
+            yagmail.SMTP(getenv("GMAIL_USERNAME"), getenv("GMAIL_PASSWORD")).send(
+                to=current_user.email,
+                subject=self.email_subject.format(username=current_user.username),
+                contents=[
+                    self._render_mail_template(token, "html", current_user),
+                    self._render_mail_template(token, "txt", current_user),
+                ],
+            )
 
         return send_mail
 
@@ -72,8 +87,7 @@ class EmailConfirmedAction:
         token = create_jwt_token(
             self.jwt_sub_format, current_user.username, self.token_valid_for
         )
-
-        tasks.add_task(self._send_mail_function, token)
+        tasks.add_task(self._send_mail_function, token, current_user)
 
     def handle_token_verification(self, input_token: str, current_user: User):
         if not verify_jwt_token(
