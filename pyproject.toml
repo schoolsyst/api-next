@@ -34,6 +34,7 @@ python-slugify = "^4.0.1"
 fastapi_utils = "^0.2.1"
 fastapi-etag = "^0.2.2"
 chevron = "^0.13.1"
+yagmail = "^0.11.224"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
