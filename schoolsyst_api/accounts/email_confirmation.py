@@ -18,6 +18,7 @@ helper = EmailConfirmedAction(
     name="email_confirmation",
     callback_url="https://app.schoolsyst.com/confirm_email/{}/",
     token_valid_for=VALID_FOR,
+    email_subject="schoolsyst: Confirmation d'email - {}",
 )
 
 
