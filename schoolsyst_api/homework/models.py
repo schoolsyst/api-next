@@ -32,6 +32,7 @@ class InHomework(BaseModel):
     subject_key: ObjectKey
     type: HomeworkType
     details: str = ""
+    due_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     progress: Primantissa = 0
     tasks: List[Task] = []
@@ -41,6 +42,14 @@ class InHomework(BaseModel):
     @property
     def completed(self) -> bool:
         return self.progress >= 1
+
+    @property
+    def late(self) -> bool:
+        return (
+            not self.completed
+            and self.due_at is not None
+            and self.due_at < datetime.now()
+        )
 
 
 class PatchHomework(InHomework):

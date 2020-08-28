@@ -73,6 +73,7 @@ class homework:
             Task(key="b", title="Lorem dolem ispa"),
             Task(key="OwO", title="Lowem dolem ssssap"),
         ],
+        due_at=datetime(2020, 10, 11),
     )
 
     coursework_français_completed_alice = Homework(
@@ -84,6 +85,7 @@ class homework:
         "occaecat cupidatat id labore culpa ex aute magna tempor adipisicing.",
         progress=1,
         completed_at=datetime(2020, 7, 22, 14, 57, 34),
+        due_at=datetime(2020, 9, 3),
     )
 
     test_si_john_half_completed = Homework(

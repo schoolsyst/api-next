@@ -80,7 +80,7 @@ class BaseModel(PydanticBaseModel):
             exclude_none=exclude_none,
         )
         include = include or set()
-        include |= {"_key", "slug"}
+        include |= {"_key", "slug", "completed", "late"}
         props = self.get_properties()
         # Include and exclude properties
         if include:
