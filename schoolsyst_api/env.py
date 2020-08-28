@@ -8,3 +8,5 @@ class EnvironmentVariables(BaseModel):
     ARANGODB_USERNAME: str
     ARANGODB_HOST: AnyHttpUrl
     ARANGO_ROOT_PASSWORD: str
+    GMAIL_USERNAME: str
+    GMAIL_PASSWORD: str
