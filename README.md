@@ -6,7 +6,7 @@
 
 Schoolsyst's next API implementation, built with [FastAPI](https://fastapi.tiangolo.com)
 
-~~See documentation at <https://dev.schoolsyst.com/docs>~~ for now, the docs can only be accessed by [installing the API locally](#installation) and accessing <http://localhost:8000/>.
+See documentation at <https://beta.api.schoolsyst.com/>
 
 ## Installation
 
