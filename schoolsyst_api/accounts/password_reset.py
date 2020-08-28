@@ -1,12 +1,12 @@
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from arango.database import StandardDatabase
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
 from schoolsyst_api import database
-from schoolsyst_api.accounts import create_jwt_token, router, verify_jwt_token
+from schoolsyst_api.accounts import router
 from schoolsyst_api.accounts.auth import (
     get_password_analysis,
     hash_password,
@@ -14,42 +14,15 @@ from schoolsyst_api.accounts.auth import (
 )
 from schoolsyst_api.accounts.models import User
 from schoolsyst_api.accounts.users import get_current_confirmed_user
-from schoolsyst_api.models import UserKey
+from schoolsyst_api.email_confirmed_action import EmailConfirmedAction
 
 load_dotenv(".env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 VALID_FOR = timedelta(minutes=30)
-JWT_SUB_FORMAT = "password-reset:{}"
 
-
-class PasswordResetRequest(BaseModel):
-    created_at: datetime
-    token: str
-    emitted_by_key: UserKey
-
-
-def send_password_reset_email(
-    to_email: str, to_username: str, password_reset_request_token: str
-) -> bool:
-    email = f"""\
-From: schoolsyst password reset system <reset-password@schoolsyst.com>
-To: {to_username} <{to_email}>
-Subject: Reset your schoolsyst password
-
-Go to https://app.schoolsyst.com/reset-password/{password_reset_request_token} to reset it.
-If you didn't request a password reset, just ignore this, and your password won't be modified.
-"""
-    print("[fake] sending email:")
-    print("---")
-    print(email)
-    print("---")
-    # host = SMTP("email.schoolsyst.com", SMTP_SSL_PORT, "localhost")
-    # host.sendmail(
-    #     from_addr="reset-password@schoolsyst.com",
-    #     to_addrs=[to_email],
-    #     msg=email,
-    # )
-    return True
+helper = EmailConfirmedAction(
+    name="password_reset", callback_url="/reset-password", token_valid_for=VALID_FOR,
+)
 
 
 @router.post(
@@ -72,11 +45,7 @@ and can only be used once.
 async def post_users_password_reset_request(
     tasks: BackgroundTasks, user: User = Depends(get_current_confirmed_user),
 ):
-    # create a request
-    token = create_jwt_token(JWT_SUB_FORMAT, user.username, VALID_FOR)
-
-    # send an email
-    tasks.add_task(send_password_reset_email, user.email, user.username, token)
+    helper.send_request(current_user=user, tasks=tasks)
     return
 
 
@@ -110,6 +79,9 @@ async def post_users_password_reset(
     (something like `https://app.schoolsyst.com/password-reset/{request_token}`) after
     performing a `POST /users/password-reset-request`.
     """
+    helper.handle_token_verification(
+        input_token=change_data.request_token, current_user=user
+    )
     analysis = get_password_analysis(
         change_data.new_password, user.email, user.username
     )
@@ -118,12 +90,6 @@ async def post_users_password_reset(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This password is not strong enough",
             headers={"X-See": "GET /password_analysis/"},
-        )
-    # validate the token
-    if not verify_jwt_token(change_data.request_token, JWT_SUB_FORMAT, user.username):
-        return HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            detail=post_users_password_reset_responses[403]["description"],
         )
     # change the password
     db.collection("users").update(
