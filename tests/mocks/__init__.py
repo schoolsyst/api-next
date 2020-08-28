@@ -3,7 +3,7 @@ from datetime import date, datetime
 from schoolsyst_api.accounts.auth import hash_password
 from schoolsyst_api.accounts.models import DBUser
 from schoolsyst_api.homework.models import Homework, HomeworkType, Task
-from schoolsyst_api.models import DateRange, WeekType
+from schoolsyst_api.models import DateRange, WeekType, objectbarekey
 from schoolsyst_api.settings.models import Settings, ThemeName
 from schoolsyst_api.subjects.models import Subject
 
@@ -61,6 +61,9 @@ class subjects:
     )
 
 
+LOWEM_DOLEM_TASK_KEY = objectbarekey()
+
+
 class homework:
     exos_math_not_completed_of_alice = Homework(
         owner_key=ALICE_KEY,
@@ -69,9 +72,9 @@ class homework:
         type=HomeworkType.exercise,
         details="Lorem ipsum dolor sit amet",
         tasks=[
-            Task(key="a", title="Ipsum dolor sit lorem"),
-            Task(key="b", title="Lorem dolem ispa"),
-            Task(key="OwO", title="Lowem dolem ssssap"),
+            Task(title="Ipsum dolor sit lorem"),
+            Task(title="Lorem dolem ispa"),
+            Task(title="Lowem dolem ssssap", key=LOWEM_DOLEM_TASK_KEY),
         ],
         due_at=datetime(2020, 10, 11),
     )
