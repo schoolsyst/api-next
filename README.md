@@ -33,7 +33,7 @@ See documentation at <https://beta.api.schoolsyst.com/>
     # with systemv
     sudo service arangodb3 start
     # with docker (easier)
-    docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=<your_.env_file's_password> arangodb/arangodb:3.6.5
+    docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD="<your_.env_file's_password>" arangodb/arangodb:3.6.5
     ```
 6. Test to make sure everything is alright
     ```
