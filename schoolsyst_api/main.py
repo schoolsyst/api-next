@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import schoolsyst_api.grades.routes
 import schoolsyst_api.homework.routes
 import schoolsyst_api.schedule.routes
 import schoolsyst_api.settings.routes
@@ -33,6 +34,7 @@ api.include_router(schoolsyst_api.subjects.routes.router, tags=["Subjects"])
 api.include_router(schoolsyst_api.homework.routes.router, tags=["Homework"])
 api.include_router(schoolsyst_api.settings.routes.router, tags=["Settings"])
 api.include_router(schoolsyst_api.schedule.routes.router, tags=["Schedule"])
+api.include_router(schoolsyst_api.grades.routes.router, tags=["Grades"])
 # Modify the OpenAPI spec
 edit_openapi_spec(api)
 

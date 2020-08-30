@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from schoolsyst_api.accounts.auth import hash_password
 from schoolsyst_api.accounts.models import DBUser
+from schoolsyst_api.grades.models import Grade
 from schoolsyst_api.homework.models import Homework, HomeworkType, Task
 from schoolsyst_api.models import DateRange, WeekType, objectbarekey
 from schoolsyst_api.settings.models import Settings, ThemeName
@@ -141,4 +142,39 @@ class settings:
             DateRange(start=date(2021, 5, 1), end=date(2021, 5, 2)),
             DateRange(start=date(2021, 5, 8), end=date(2021, 5, 9)),
         ],
+    )
+
+
+class grades:
+    alice_trigo = Grade(
+        title="Esse qui laboris et et dolore esse non ullamco sint quis.",
+        unit=20,
+        subject_key=subjects.mathematiques,
+        actual=0.86,
+        expected=0.64,
+        goal=0.56,
+        weight=1,
+        obtained_at=datetime(2020, 11, 12, 10, 31, 24),
+    )
+
+    alice_nietzsche = Grade(
+        title="Anim in pariatur ut pariatur est occaecat laboris consequat.",
+        unit=10,
+        subject_key=subjects.français,
+        actual=0.97,
+        expected=None,
+        goal=None,
+        weight=3,
+        obtained_at=datetime(2020, 11, 15, 16, 2, 2),
+    )
+
+    john_nosubject = Grade(
+        title="Incididunt elit sunt proident id quis officia fugiat ex nulla voluptate pariatur pariatur enim.",
+        unit=5,
+        subject_key=None,
+        actual=None,
+        expected=0.49,
+        goal=0.40,
+        weight=0.5,
+        obtained_at=None,
     )

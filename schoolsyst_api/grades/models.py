@@ -2,14 +2,24 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import PositiveFloat, confloat
-from schoolsyst_api.models import OwnedResource, Primantissa
+from schoolsyst_api.models import BaseModel, ObjectKey, OwnedResource, Primantissa
 
 
-class Grade(OwnedResource):
+class InGrade(BaseModel):
     title: str
+    unit: confloat(gt=0)
+    subject_key: Optional[ObjectKey] = None
     actual: Optional[Primantissa] = None
     expected: Optional[Primantissa] = None
     goal: Optional[Primantissa] = None
-    unit: confloat(gt=0)
     weight: PositiveFloat = 1
     obtained_at: Optional[datetime] = None
+
+
+class PatchGrade(InGrade):
+    title: Optional[str] = None
+    unit: Optional[confloat(gt=0)] = None
+
+
+class Grade(InGrade, OwnedResource):
+    pass
