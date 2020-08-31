@@ -13,6 +13,7 @@ router = InferringRouter()
 
 @router.get(
     "/personal_data_archive",
+    status_code=status.HTTP_201_CREATED,
     description=f"""\
 Get an archive of all the data owned by the user.
 The response is a zip file containing a JSON response, which is
