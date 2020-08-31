@@ -788,6 +788,14 @@ python-versions = "*"
 version = "5.3.1"
 
 [[package]]
+category = "main"
+description = "PyZip is a package for handling zip-in-memory content as a dictionary."
+name = "pyzip"
+optional = false
+python-versions = "*"
+version = "0.2.0"
+
+[[package]]
 category = "dev"
 description = "Alternative regular expression module, to replace re."
 name = "regex"
@@ -1028,7 +1036,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "1f318bc4c8d62b545037d45083cc00373624eed3ded4f31ed9baf6b8570c9a4c"
+content-hash = "79db42891299f61d4e4c8bb21f59f1ca196eee0eb5bb268779674c77d1b22ba5"
 lock-version = "1.1"
 python-versions = "^3.8"
 
@@ -1507,6 +1515,9 @@ pyyaml = [
     {file = "PyYAML-5.3.1-cp38-cp38-win32.whl", hash = "sha256:06a0d7ba600ce0b2d2fe2e78453a470b5a6e000a985dd4a4e54e436cc36b0e97"},
     {file = "PyYAML-5.3.1-cp38-cp38-win_amd64.whl", hash = "sha256:95f71d2af0ff4227885f7a6605c37fd53d3a106fcab511b8860ecca9fcf400ee"},
     {file = "PyYAML-5.3.1.tar.gz", hash = "sha256:b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d"},
+]
+pyzip = [
+    {file = "pyzip-0.2.0.tar.gz", hash = "sha256:c0b10776d798e4be9d5fe6eec541dd0a9740b6550b12fd4cfa238a085686a298"},
 ]
 regex = [
     {file = "regex-2020.7.14-cp27-cp27m-win32.whl", hash = "sha256:e46d13f38cfcbb79bfdb2964b0fe12561fe633caf964a77a5f8d4e45fe5d2ef7"},
