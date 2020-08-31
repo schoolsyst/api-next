@@ -1,12 +1,12 @@
 from arango.database import StandardDatabase
 from fastapi import Depends, Response, status
 from fastapi_utils.inferring_router import InferringRouter
+from pyzip import PyZip
 from schoolsyst_api import database
 from schoolsyst_api.accounts.models import User
 from schoolsyst_api.accounts.users import get_current_confirmed_user
 from schoolsyst_api.database import COLLECTIONS
 from schoolsyst_api.personal_archive.models import PersonalArchive
-from schoolsyst_api.utils import zip_text
 
 router = InferringRouter()
 
@@ -29,18 +29,18 @@ async def get_personal_data_archive(
     """
     data = {}
     # The user's data
-    data["user"] = db.collection("users").get(user.key)
+    data["users"] = [db.collection("users").get(user.key)]
     # the data of which the user is the owner for every collection
     for c in COLLECTIONS:
         if c == "users":
             continue
         data[c] = [batch for batch in db.collection(c).find({"owner_key": user.key})]
-
+    # zip the data
+    zip_file = PyZip()
+    zip_file["data.json"] = PersonalArchive(**data).json(by_alias=True).encode("utf-8")
     return Response(
-        content=zip_text(
-            PersonalArchive(**data).json(by_alias=True), filename="archive.json"
-        ),
+        content=zip_file.to_bytes(),
         status_code=status.HTTP_201_CREATED,
         headers={"Content-Disposition": f"attachment; filename={filename}"},
-        media_type="application/x-zip-compressed",
+        media_type="application/zip",
     )
