@@ -6,6 +6,7 @@ from fastapi_utils.enums import StrEnum
 from pydantic import Field
 from schoolsyst_api.models import (
     BaseModel,
+    ObjectBareKey,
     ObjectKey,
     OwnedResource,
     Primantissa,
@@ -21,7 +22,7 @@ class HomeworkType(StrEnum):
 
 
 class Task(BaseModel):
-    key: str = Field(default_factory=objectbarekey)
+    key: ObjectBareKey = Field(default_factory=objectbarekey)
     title: str
     completed: bool = False
     completed_at: Optional[datetime] = None
