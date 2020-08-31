@@ -21,7 +21,10 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 VALID_FOR = timedelta(minutes=30)
 
 helper = EmailConfirmedAction(
-    name="password_reset", callback_url="/reset-password", token_valid_for=VALID_FOR,
+    name="password_reset",
+    callback_url="/reset-password",
+    token_valid_for=VALID_FOR,
+    email_subject="schoolsyst: Réinitialisation de mot de passe - {}",
 )
 
 
