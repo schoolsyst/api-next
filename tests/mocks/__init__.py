@@ -147,9 +147,10 @@ class settings:
 
 class grades:
     alice_trigo = Grade(
+        owner_key=ALICE_KEY,
         title="Esse qui laboris et et dolore esse non ullamco sint quis.",
         unit=20,
-        subject_key=subjects.mathematiques,
+        subject_key=subjects.mathematiques._key,
         actual=0.86,
         expected=0.64,
         goal=0.56,
@@ -158,9 +159,10 @@ class grades:
     )
 
     alice_nietzsche = Grade(
+        owner_key=ALICE_KEY,
         title="Anim in pariatur ut pariatur est occaecat laboris consequat.",
         unit=10,
-        subject_key=subjects.français,
+        subject_key=subjects.français._key,
         actual=0.97,
         expected=None,
         goal=None,
@@ -169,6 +171,7 @@ class grades:
     )
 
     john_nosubject = Grade(
+        owner_key=JOHN_KEY,
         title="Incididunt elit sunt proident id quis officia fugiat ex nulla voluptate pariatur pariatur enim.",
         unit=5,
         subject_key=None,
