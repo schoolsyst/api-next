@@ -33,6 +33,7 @@ nanoid = "^2.0.0"
 python-slugify = "^4.0.1"
 fastapi_utils = "^0.2.1"
 fastapi-etag = "^0.2.2"
+pyzip = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"

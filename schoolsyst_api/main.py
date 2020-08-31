@@ -2,6 +2,7 @@ from pathlib import Path
 
 import schoolsyst_api.grades.routes
 import schoolsyst_api.homework.routes
+import schoolsyst_api.personal_archive.routes
 import schoolsyst_api.schedule.routes
 import schoolsyst_api.settings.routes
 import schoolsyst_api.statistics.routes
@@ -31,6 +32,7 @@ api.add_event_handler("startup", database.initialize)
 api.add_middleware(**cors.middleware_params)
 # Include routes
 api.include_router(accounts.router, tags=["Accounts"])
+api.include_router(schoolsyst_api.personal_archive.routes.router, tags=["Accounts"])
 api.include_router(schoolsyst_api.subjects.routes.router, tags=["Subjects"])
 api.include_router(schoolsyst_api.homework.routes.router, tags=["Homework"])
 api.include_router(schoolsyst_api.settings.routes.router, tags=["Settings"])
