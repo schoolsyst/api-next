@@ -1,6 +1,9 @@
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from io import BytesIO
+from tempfile import TemporaryFile
 from typing import Iterator, TypeVar
+from zipfile import ZipFile
 
 from isodate import duration_isoformat
 
@@ -45,3 +48,20 @@ def daterange(start: D, end: D, precision: str = "days") -> Iterator[D]:
         if precision == "weeks":
             n *= 7
         yield start + timedelta(**{precision: n})
+
+
+def zip_text(text: str, filename: str) -> bytes:
+    # Open StringIO to grab in-memory ZIP contents
+    buffer = BytesIO()
+    file = ZipFile(buffer, "w")
+
+    with TemporaryFile("w") as temp_file:
+        # Write the contents from text into a temprary file
+        temp_file.write(text)
+        # Write that zip file into the archive
+        file.write(temp_file.name, filename)
+
+    # Close the archive
+    file.close()
+
+    return buffer.getvalue()

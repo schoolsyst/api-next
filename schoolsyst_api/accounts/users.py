@@ -210,22 +210,3 @@ async def delete_current_user(
         db.collection(c).delete_match({"owner_key": user.key})
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.get("/personal_data_archive")
-async def get_personal_data_archive(
-    user: User = Depends(get_current_confirmed_user),
-    db: StandardDatabase = Depends(database.get),
-) -> dict:
-    """
-    Get an archive of all of the data linked to the user.
-    """
-    data = {}
-    # The user's data
-    data["user"] = db.collection("users").get(user.key)
-    # the data of which the user is the owner for every collection
-    for c in COLLECTIONS:
-        if c == "users":
-            continue
-        data[c] = [batch for batch in db.collection(c).find({"owner_key": user.key})]
-    return data
