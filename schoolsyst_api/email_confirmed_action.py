@@ -31,30 +31,40 @@ class EmailConfirmedAction:
         self.callback_url = callback_url
         self.token_valid_for = token_valid_for
         self.email_subject = email_subject
+        self._templates_directory = (
+            Path(__file__).parent.parent / "static" / "email_templates" / "dist"
+        )
 
     @property
     def jwt_sub_format(self) -> str:
         return f"{self.name}:{{}}"
 
     @property
-    def mail_template_path(self) -> str:
+    def template_pseudo_filepath(self) -> Path:
         """
         The mail template (.html compiled from .mjml file)'s path,
         assuming the project root as the current directory.
         The extension still needs to be added to get either the HTML version (.html)
         or the plain-text one (.txt)
         """
-        return str(Path("static") / "mail_templates" / "dist" / self.name)
+        return Path(self._templates_directory) / self.name
+
+    def template_filepath(self, fmt: Union[Literal["html"], Literal["txt"]]) -> Path:
+        return Path(f"{self.template_pseudo_filepath}.{fmt}")
 
     @property
-    def _send_mail_function(self) -> Callable[[str], bool]:
+    def _send_mail_function(self) -> Callable[[str, User], None]:
         def send_mail(token: str, current_user: User):
             yagmail.SMTP(getenv("GMAIL_USERNAME"), getenv("GMAIL_PASSWORD")).send(
                 to=current_user.email,
                 subject=self.email_subject.format(username=current_user.username),
                 contents=[
-                    self._render_mail_template(token, "html", current_user),
-                    self._render_mail_template(token, "txt", current_user),
+                    self._render_mail_template_file(
+                        "html", current_user=current_user, token=token
+                    ),
+                    self._render_mail_template_file(
+                        "txt", current_user=current_user, token=token
+                    ),
                 ],
             )
 
@@ -63,18 +73,30 @@ class EmailConfirmedAction:
     def _action_url(self, token: str) -> str:
         return self.callback_url.format(token)
 
-    def _render_mail_template(
+    def _render_mail_template_file(
         self,
-        token: str,
         fmt: Union[Literal["html"], Literal["txt"]],
+        token: str,
         current_user: User,
     ) -> str:
         """
         Renders the mail template (at `self.mail_template_path()`)
         and returns the HTML/plaintext string
         """
+        return self._render_mail_template(
+            template=Path(self.template_filepath(fmt)).read_text(),
+            token=token,
+            current_user=current_user,
+        )
+
+    def _render_mail_template(
+        self, template: str, token: str, current_user: User
+    ) -> str:
+        """
+        Renders the mail template given and returns the rendered string
+        """
         return chevron.render(
-            Path(f"{self.mail_template_path}.{fmt}").read_text(),
+            template,
             {
                 "url": self._action_url(token),
                 "token": token,
