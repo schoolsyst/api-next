@@ -54,7 +54,7 @@ def update_homework(
 @router.put("/homework/{key}/complete_task/{task_key}")
 def complete_homework_task(
     key: ObjectBareKey,
-    task_key: str,
+    task_key: ObjectBareKey,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
 ) -> Homework:

@@ -4,7 +4,7 @@ from arango.database import StandardDatabase
 from fastapi import status
 from schoolsyst_api.homework.models import HomeworkType
 from tests import authed_request, client, database_mock, insert_mocks, mocks
-from tests.mocks import ALICE_PASSWORD
+from tests.mocks import ALICE_PASSWORD, LOWEM_DOLEM_TASK_KEY
 
 
 def test_list_homework():
@@ -172,7 +172,7 @@ def test_complete_homework_task():
         insert_mocks(db, "homework")
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.put(
-                f"/homework/{mocks.homework.exos_math_not_completed_of_alice.object_key}/complete_task/OwO",
+                f"/homework/{mocks.homework.exos_math_not_completed_of_alice.object_key}/complete_task/{LOWEM_DOLEM_TASK_KEY}",
                 **params,
             )
 
@@ -182,8 +182,8 @@ def test_complete_homework_task():
                 mocks.homework.exos_math_not_completed_of_alice.tasks
             )
             # The task was marked as completed
-            assert [t for t in response.json()["tasks"] if t["key"] == "OwO"][0][
-                "completed"
-            ]
+            assert [
+                t for t in response.json()["tasks"] if t["key"] == LOWEM_DOLEM_TASK_KEY
+            ][0]["completed"]
             # No other task was marked as completed
             assert len([t for t in response.json()["tasks"] if t["completed"]]) == 1
