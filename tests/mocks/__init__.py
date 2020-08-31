@@ -170,6 +170,18 @@ class grades:
         obtained_at=datetime(2020, 11, 15, 16, 2, 2),
     )
 
+    alice_unobtained = Grade(
+        owner_key=ALICE_KEY,
+        title="Anim in pariatur ut pariatur est occaecat laboris consequat.",
+        unit=10,
+        subject_key=subjects.français._key,
+        actual=None,
+        expected=None,
+        goal=None,
+        weight=3,
+        obtained_at=None,
+    )
+
     john_nosubject = Grade(
         owner_key=JOHN_KEY,
         title="Incididunt elit sunt proident id quis officia fugiat ex nulla voluptate pariatur pariatur enim.",

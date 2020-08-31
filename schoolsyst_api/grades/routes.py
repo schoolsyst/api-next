@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from arango.database import StandardDatabase
@@ -23,7 +24,7 @@ def list_grades(
     return helper.list(db, current_user)
 
 
-@router.post("/grades/")
+@router.post("/grades/", status_code=201)
 def create_grade(
     grade: InGrade,
     db: StandardDatabase = Depends(database.get),
@@ -51,10 +52,12 @@ def delete_grade(
 
 
 @router.patch("/grades/{key}")
-def patch_grade(
+def update_grade(
     key: ObjectBareKey,
     changes: PatchGrade,
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
 ) -> Grade:
+    if changes.actual:
+        changes.obtained_at = datetime.now()
     return helper.update(db, current_user, key, changes)

@@ -8,6 +8,7 @@ from schoolsyst_api.models import BaseModel, ObjectKey, OwnedResource, Primantis
 class InGrade(BaseModel):
     title: str
     unit: confloat(gt=0)
+    details: str = ""
     subject_key: Optional[ObjectKey] = None
     actual: Optional[Primantissa] = None
     expected: Optional[Primantissa] = None
