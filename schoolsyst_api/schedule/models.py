@@ -13,6 +13,12 @@ from schoolsyst_api.models import (
 
 
 class InEvent(BaseModel):
+    """
+    An event of the schedule.
+    This constitutes the "base" schedule,
+    that would be always correct if we lived in a perfect world.
+    """
+
     subject_key: ObjectKey
     start: time
     end: time
@@ -28,6 +34,8 @@ class Event(OwnedResource, InEvent):
 
 class EventMutationInterpretation(StrEnum):
     """
+    Possible interpretations of an event mutation.
+
     #### edit
 
     A simple editing of the course, while keeping it on the same day.
@@ -72,6 +80,8 @@ class EventMutation(OwnedResource):
     @property
     def interpretation(self) -> Optional[EventMutationInterpretation]:
         """
+        Computes the correct interpretation of the mutation using the following algorithm:
+
         if subject_key
            and added_in     and deleted_in      -> edit
            and added_in     and not deleted_in  -> None
@@ -163,6 +173,13 @@ class EventMutation(OwnedResource):
 
 
 class Course(OwnedResource):
+    """
+    Represents a course.
+    Unlike _events_, courses have a start _**date**-time_, and
+    thus describe where a course takes place _on that particular day_, i.e. an event
+    with mutations, holidays, etc. applied.
+    """
+
     subject_key: ObjectKey
     start: datetime
     end: datetime

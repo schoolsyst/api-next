@@ -17,7 +17,12 @@ from fastapi_utils.enums import StrEnum
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field, confloat, constr
 
+# Misc. pydantic constrained types
+
 Primantissa = confloat(le=1, ge=0)
+
+# Keys
+
 ID_CHARSET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 USER_KEY_LEN = 10
 OBJECT_KEY_LEN = 6
@@ -30,14 +35,23 @@ OBJECT_KEY_FORMAT = "{owner}:{object}"
 
 
 def userkey():
+    """
+    Generates a new nanoid for use with user keys.
+    """
     return nanoid.generate(ID_CHARSET, USER_KEY_LEN)
 
 
 def objectbarekey():
+    """
+    Generates a new nanoid for use with object bare keys.
+    """
     return nanoid.generate(ID_CHARSET, OBJECT_KEY_LEN)
 
 
 def objectkey(owner_key):
+    """
+    Given an owner key, generates a new nanoid for use with object keys.
+    """
     return OBJECT_KEY_FORMAT.format(owner=owner_key, object=objectbarekey())
 
 
@@ -142,16 +156,28 @@ class DateRange(BaseModel):
 
 
 class DatetimeRange(DateRange):
+    """
+    A DateRange, but with `datetime` objects instead of simple dates.
+    """
+
     start: datetime
     end: datetime
 
 
 class WeekType(StrEnum):
+    """
+    Different week types, used for schools that change their schedule every other week.
+    """
+
     even = auto()
     odd = auto()
 
 
 class ISOWeekDay(int, Enum):
+    """
+    Days of the week as numbers, as defined by ISO 8601.
+    """
+
     monday = 1
     tuesday = 2
     wednesday = 3
