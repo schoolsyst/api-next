@@ -8,6 +8,16 @@ from schoolsyst_api.models import BaseModel, DateRange, UserKey, WeekType
 
 
 class ThemeName(StrEnum):
+    """
+    Name of a theme for schoolsyst's interface.
+    "auto" has a loose meaning here, it can be either:
+
+    - following the system's theme (preferred) or, when not possible,
+    - switching to dark theme in the evening and switching back in the morning.
+
+    Those two behaviors might be user-controllable in the future using other settings.
+    """
+
     light = auto()
     dark = auto()
     auto = auto()
@@ -15,6 +25,7 @@ class ThemeName(StrEnum):
 
 class InSettings(BaseModel):
     """
+    A user's settings.
     Each user has exactly one persistent setting tied to him.
     Thus, the settings' "_key" is the owner user's
     """
@@ -56,6 +67,10 @@ class InSettings(BaseModel):
 
 # TODO: autonatic Enum with list of attrs of InSettings as values
 class SettingKey(StrEnum):
+    """
+    Known setting keys (names)
+    """
+
     theme = auto()
     year_layout = auto()
     starting_week_type = auto()
