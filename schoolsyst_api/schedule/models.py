@@ -166,7 +166,9 @@ class EventMutation(OwnedResource):
 
 
 class Course(OwnedResource):
-    subject_key: ObjectKey
+    subject_key: Optional[ObjectKey] = None
+    title: Optional[str] = None
+    color: Optional[Color] = None
     start: datetime
     end: datetime
     room: str
