@@ -3,6 +3,7 @@ from enum import auto
 from typing import Optional
 
 from fastapi_utils.enums import StrEnum
+from pydantic.color import Color
 from schoolsyst_api.models import (
     BaseModel,
     DatetimeRange,
@@ -13,7 +14,9 @@ from schoolsyst_api.models import (
 
 
 class InEvent(BaseModel):
-    subject_key: ObjectKey
+    subject_key: Optional[ObjectKey] = None
+    title: Optional[str] = None
+    color: Optional[Color] = None
     start: time
     end: time
     day: ISOWeekDay
