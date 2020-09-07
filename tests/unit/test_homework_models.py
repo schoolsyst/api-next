@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta
 
 from schoolsyst_api.homework.models import HomeworkType, InHomework, Task
-from schoolsyst_api.models import objectbarekey
+from tests import mocks
 
-hw_props = dict(title="Test", subject_key=objectbarekey(), type=HomeworkType.test)
+hw_props = dict(
+    title="Test", subject_key=mocks.subjects.français._key, type=HomeworkType.test
+)
 tasks = [
     Task(title="Lorem"),
     Task(title="Ipsum"),
@@ -20,7 +22,7 @@ def test_homework_completed():
 
 
 def test_homework_late():
-    assert not InHomework(**hw_props, explicit_progress=1)
+    assert not InHomework(**hw_props, explicit_progress=1).late
     assert InHomework(
         **hw_props,
         explicit_progress=0.4,

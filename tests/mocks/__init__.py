@@ -87,7 +87,7 @@ class homework:
         type=HomeworkType.coursework,
         details="Labore commodo veniam nostrud elit "
         "occaecat cupidatat id labore culpa ex aute magna tempor adipisicing.",
-        progress=1,
+        explicit_progress=1,
         completed_at=datetime(2020, 7, 22, 14, 57, 34),
         due_at=datetime(2020, 9, 3),
     )
