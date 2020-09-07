@@ -8,7 +8,7 @@ UsernameStr = constr(regex=r"[\w_-]+")
 
 class User(BaseModel):
     """
-    Represents a user
+    A user account.
     """
 
     key: UserKey = Field(default_factory=userkey, alias="_key")
@@ -19,10 +19,19 @@ class User(BaseModel):
 
 
 class DBUser(User):
+    """
+    The user, as stored in the database.
+    (Note how the password is not stored in plaintext (thank god), and not even encrypted)
+    """
+
     password_hash: str
 
 
 class InUser(BaseModel):
+    """
+    What the user needs to provide to create an account.
+    """
+
     username: UsernameStr
     email: EmailStr
     password: str
