@@ -55,7 +55,7 @@ class InHomework(BaseModel):
     details: str = ""
     due_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    progress: Primantissa = 0
+    explicit_progress: Optional[Primantissa] = None
     tasks: List[Task] = []
     notes: List[ObjectKey] = []
     grades: List[ObjectKey] = []
@@ -63,6 +63,14 @@ class InHomework(BaseModel):
     @property
     def completed(self) -> bool:
         return self.progress >= 1
+
+    @property
+    def progress(self) -> Primantissa:
+        """
+        Progress, used as the source of truth for `.completed`.
+        Is either explicit_progress, if set, or progress_from_tasks.
+        """
+        return self.explicit_progress or self.progress_from_tasks
 
     @property
     def late(self) -> bool:
@@ -76,14 +84,9 @@ class InHomework(BaseModel):
     def progress_from_tasks(self) -> Primantissa:
         """
         Progress as dictated by the tasks' completion.
-        This is decoupled from `self.progress` as the progress can be set manually.
-
-        TODO: Make `progress` read-only, and add an endpoint to complete a homework, which will:
-        - if the homework has any tasks:
-            mark all of the homework's tasks as completed
-        - else:
-            set `progress` to 1
         """
+        if not len(self.tasks):
+            return 0
         return len([t for t in self.tasks if t.completed]) / len(self.tasks)
 
 
