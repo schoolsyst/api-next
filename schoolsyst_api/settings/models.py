@@ -55,7 +55,7 @@ class InSettings(BaseModel):
     no matter what this value is set to.
     This is solely used for user interfaces.
     """
-    grades_unit: PositiveFloat = 100
+    grades_unit: PositiveFloat = PositiveFloat(100)
     """
     Holidays, exceptional weeks without courses, school trips, etc.
     """
