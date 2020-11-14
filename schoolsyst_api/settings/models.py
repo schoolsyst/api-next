@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from enum import auto
-from typing import List, Optional
+from typing import Optional
 
 from fastapi_utils.enums import StrEnum
 from pydantic import Field, PositiveFloat
@@ -39,7 +39,7 @@ class InSettings(BaseModel):
         {start: <start of the 2nd semester>, end: <end of the year>}
     ]
     """
-    year_layout: List[DateRange] = [
+    year_layout: list[DateRange] = [
         DateRange(
             start=date(datetime.today().year, 1, 1),
             end=date(datetime.today().year, 12, 31),
@@ -59,7 +59,7 @@ class InSettings(BaseModel):
     """
     Holidays, exceptional weeks without courses, school trips, etc.
     """
-    offdays: List[DateRange] = []
+    offdays: list[DateRange] = []
 
     def in_offdays(self, o: date) -> bool:
         return any(o in offday_range for offday_range in self.offdays)

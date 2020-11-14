@@ -1,6 +1,6 @@
 import os
 from contextlib import contextmanager
-from typing import List, Optional
+from typing import Optional
 
 import nanoid
 import schoolsyst_api.database
@@ -46,7 +46,7 @@ def authed_request(client: TestClient, username: UsernameStr, password: str):
 def insert_mocks(
     db: StandardDatabase, collection_name: str,
 ):
-    mock_objects: List[BaseModel] = [
+    mock_objects: list[BaseModel] = [
         getattr(getattr(tests.mocks, collection_name), m)
         for m in dir(getattr(tests.mocks, collection_name))
         if not m.startswith("__")

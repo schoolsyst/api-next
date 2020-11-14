@@ -7,10 +7,9 @@ Some prefixes to the model's names indicate particular variants of that model:
 - "DB" — model of the document stored in the database
 - ""
 """
-
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
-from typing import Any, Dict, Optional, Set, Union
+from typing import Any, Optional, Union
 
 import nanoid
 from fastapi_utils.enums import StrEnum
@@ -76,14 +75,14 @@ class BaseModel(PydanticBaseModel):
     def dict(
         self,
         *,
-        include: Set[str] = None,
-        exclude: Set[str] = None,
+        include: set[str] = None,
+        exclude: set[str] = None,
         by_alias: bool = False,
         skip_defaults: bool = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         attribs = super().dict(
             include=include,
             exclude=exclude,

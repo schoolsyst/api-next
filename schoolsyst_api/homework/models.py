@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import auto
-from typing import List, Optional
+from typing import Optional
 
 from fastapi_utils.enums import StrEnum
 from pydantic import Field
@@ -56,9 +56,9 @@ class InHomework(BaseModel):
     due_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     explicit_progress: Optional[Primantissa] = None
-    tasks: List[Task] = []
-    notes: List[ObjectKey] = []
-    grades: List[ObjectKey] = []
+    tasks: list[Task] = []
+    notes: list[ObjectKey] = []
+    grades: list[ObjectKey] = []
 
     @property
     def completed(self) -> bool:
