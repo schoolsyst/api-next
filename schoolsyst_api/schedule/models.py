@@ -94,33 +94,35 @@ class EventMutation(OwnedResource):
            and not added_in and not deleted_in  -> None
 
         >>> import nanoid
+        >>> from schoolsyst_api.models import userkey, objectkey, DatetimeRange
+        >>> from datetime import datetime
         >>> EventMutation(
         ...     owner_key=userkey(),
         ...     subject_key=objectkey(userkey()),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation.value
         'edit'
         >>> EventMutation(
         ...     owner_key=userkey(),
         ...     subject_key=objectkey(userkey()),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
         ... ).interpretation
         >>> EventMutation(
         ...     owner_key=userkey(),
         ...     subject_key=objectkey(userkey()),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation
         >>> EventMutation(
@@ -129,29 +131,29 @@ class EventMutation(OwnedResource):
         ... ).interpretation
         >>> EventMutation(
         ...     owner_key=userkey(),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation.value
         'reschedule'
         >>> EventMutation(
         ...     owner_key=userkey(),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
         ... ).interpretation.value
         'addition'
         >>> EventMutation(
         ...     owner_key=userkey(),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation.value
         'deletion'
