@@ -173,10 +173,21 @@ class DatetimeRange(DateRange):
 class WeekType(StrEnum):
     """
     Different week types, used for schools that change their schedule every other week.
+
+    >>> WeekType.other_one(WeekType.even)
+    <WeekType.odd: 'odd'>
+    >>> WeekType.other_one(WeekType.odd)
+    <WeekType.even: 'even'>
     """
 
     even = auto()
     odd = auto()
+
+    @classmethod
+    def other_one(cls, value: "WeekType"):
+        if value.value == cls.even:
+            return cls.odd
+        return cls.even
 
 
 class ISOWeekDay(int, Enum):
