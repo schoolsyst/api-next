@@ -32,7 +32,12 @@ class InEvent(BaseModel):
 
 
 class Event(OwnedResource, InEvent):
-    pass
+    @property
+    def on_both_weeks(self) -> bool:
+        """
+        Whether a event occurs on both even and odd weeks
+        """
+        return self.on_even_weeks and self.on_odd_weeks
 
 
 class EventMutationInterpretation(StrEnum):
