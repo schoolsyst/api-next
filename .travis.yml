@@ -12,6 +12,8 @@ before_install:
   - echo -ne "ARANGO_ROOT_PASSWORD=\"openSesame\"\n" >> .env
   - echo -ne "GITHUB_USERNAME=\"$GITHUB_USERNAME\"\n" >> .env
   - echo -ne "GITHUB_TOKEN=\"$GITHUB_TOKEN\"\n" >> .env
+  - echo -ne "GMAIL_USERNAME=\"$GMAIL_USERNAME\"\n" >> .env
+  - echo -ne "GMAIL_PASSWORD=\"$GMAIL_PASSWORD\"\n" >> .env
   - pip install 'poetry>=1.0'
   - docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=openSesame arangodb/arangodb:3.6.5
 
