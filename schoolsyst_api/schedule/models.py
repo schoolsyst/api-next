@@ -19,13 +19,14 @@ class InEvent(BaseModel):
     This constitutes the "base" schedule,
     that would be always correct if we lived in a perfect world.
     """
+
     subject_key: Optional[ObjectKey] = None
     title: Optional[str] = None
     color: Optional[Color] = None
     start: time
     end: time
     day: ISOWeekDay
-    room: str = ""
+    location: str = ""
     on_even_weeks: bool = True
     on_odd_weeks: bool = True
 
@@ -77,7 +78,7 @@ class EventMutation(OwnedResource):
     subject_key: Optional[ObjectKey] = None
     deleted_in: Optional[DatetimeRange] = None
     added_in: Optional[DatetimeRange] = None
-    room: Optional[str] = None
+    location: Optional[str] = None
 
     @property
     def interpretation(self) -> Optional[EventMutationInterpretation]:
@@ -183,9 +184,10 @@ class Course(OwnedResource):
     thus describe where a course takes place _on that particular day_, i.e. an event
     with mutations, holidays, etc. applied.
     """
+
     subject_key: Optional[ObjectKey] = None
     title: Optional[str] = None
     color: Optional[Color] = None
     start: datetime
     end: datetime
-    room: str
+    location: str

@@ -38,7 +38,7 @@ class subjects:
         owner_key=ALICE_KEY,
         color="red",
         goal=1.0,
-        room="L204",
+        location="L204",
         weight=3.0,
         name="Français",
     )
@@ -47,7 +47,7 @@ class subjects:
         owner_key=ALICE_KEY,
         color="cyan",
         goal=0.4,
-        room="L624",
+        location="L624",
         weight=6,
         name="Mathématiques",
     )
@@ -56,7 +56,7 @@ class subjects:
         owner_key=JOHN_KEY,
         color="#c0ffee",
         goal=0.8,
-        room="",
+        location="",
         weight=48,
         name="Sciences de l'ingénieur",
     )

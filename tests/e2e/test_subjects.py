@@ -104,7 +104,7 @@ def test_create_subject():
                 "slug": "sciences-de-l-ingenieur",
                 "weight": 1.0,
                 "goal": 3.67e-1,
-                "room": "",
+                "location": "",
             }.items():
                 assert response.json()[key] == value
 

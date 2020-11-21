@@ -15,7 +15,7 @@ class InSubject(BaseModel):
     color: Color
     weight: Union[PositiveFloat, Literal[0]] = 1.0
     goal: Optional[Primantissa] = None
-    room: str = ""
+    location: str = ""
 
     @property
     def slug(self) -> str:  # unique

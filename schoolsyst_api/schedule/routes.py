@@ -120,7 +120,7 @@ def list_courses(
                 start=datetime.combine(date=day, time=event.start),
                 end=datetime.combine(date=day, time=event.end),
                 subject_key=event.subject_key,
-                room=event.room,
+                location=event.location,
             )
 
             # Get relevant mutations:
@@ -132,9 +132,9 @@ def list_courses(
             ]
 
             for mutation in mutations:
-                course.room = mutation.room or course.room
+                course.location = mutation.location or course.location
                 course.subject_key = mutation.subject_key or course.subject_key
-                course_daterange = DatetimeRange(course.start, course.end)
+                course_daterange = DatetimeRange(start=course.start, end=course.end)
                 if mutation.deleted_in:
                     course_daterange ^= mutation.deleted_in
                 if mutation.added_in:
