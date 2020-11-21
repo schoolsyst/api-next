@@ -1,6 +1,8 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
+from os import getenv
 from pathlib import Path
 
+from schoolsyst_api.accounts.models import User
 from schoolsyst_api.email_confirmed_action import EmailConfirmedAction
 from tests import mocks
 
@@ -80,4 +82,21 @@ Hello, {mocks.users.alice.username}.
 
 Please click here: ipsum://hmmm Token: hmmm Sent to your email: {mocks.users.alice.email}
 """
+    )
+
+
+def test_send_request():
+    print(
+        f"""Running with gmail creds:
+-------------------------
+un {getenv('GMAIL_USERNAME')!r}
+pw {getenv('GMAIL_PASSWORD')!r}"""
+    )
+    eca._send_request(
+        User(
+            username="ewen-lbh",
+            email=getenv("GMAIL_PASSWORD"),
+            email_is_confirmed=True,
+            joined_at=datetime.now(),
+        )
     )
