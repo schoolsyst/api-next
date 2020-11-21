@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from enum import auto
-from typing import List, Optional
+from typing import Optional
 
 from fastapi_utils.enums import StrEnum
 from pydantic import Field, PositiveFloat
@@ -8,6 +8,16 @@ from schoolsyst_api.models import BaseModel, DateRange, UserKey, WeekType
 
 
 class ThemeName(StrEnum):
+    """
+    Name of a theme for schoolsyst's interface.
+    "auto" has a loose meaning here, it can be either:
+
+    - following the system's theme (preferred) or, when not possible,
+    - switching to dark theme in the evening and switching back in the morning.
+
+    Those two behaviors might be user-controllable in the future using other settings.
+    """
+
     light = auto()
     dark = auto()
     auto = auto()
@@ -15,6 +25,7 @@ class ThemeName(StrEnum):
 
 class InSettings(BaseModel):
     """
+    A user's settings.
     Each user has exactly one persistent setting tied to him.
     Thus, the settings' "_key" is the owner user's
     """
@@ -28,7 +39,7 @@ class InSettings(BaseModel):
         {start: <start of the 2nd semester>, end: <end of the year>}
     ]
     """
-    year_layout: List[DateRange] = [
+    year_layout: list[DateRange] = [
         DateRange(
             start=date(datetime.today().year, 1, 1),
             end=date(datetime.today().year, 12, 31),
@@ -48,7 +59,7 @@ class InSettings(BaseModel):
     """
     Holidays, exceptional weeks without courses, school trips, etc.
     """
-    offdays: List[DateRange] = []
+    offdays: list[DateRange] = []
 
     def in_offdays(self, o: date) -> bool:
         return any(o in offday_range for offday_range in self.offdays)
@@ -56,6 +67,10 @@ class InSettings(BaseModel):
 
 # TODO: autonatic Enum with list of attrs of InSettings as values
 class SettingKey(StrEnum):
+    """
+    Known setting keys (names)
+    """
+
     theme = auto()
     year_layout = auto()
     starting_week_type = auto()

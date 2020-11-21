@@ -3,6 +3,10 @@ from schoolsyst_api.models import OwnedResource
 
 
 class Quiz(OwnedResource):
+    """
+    A quiz object
+    """
+
     name: str
     # questions: List[Question] = []
     # Number of trials in test mode

@@ -7,6 +7,10 @@ from slugify import slugify
 
 
 class InSubject(BaseModel):
+    """
+    A subject.
+    """
+
     name: str
     color: Color
     weight: Union[PositiveFloat, Literal[0]] = 1.0
@@ -19,6 +23,10 @@ class InSubject(BaseModel):
 
 
 class PatchSubject(InSubject):
+    """
+    A special model used for patching subjects.
+    """
+
     name: Optional[str] = None
     color: Optional[Color] = None
 

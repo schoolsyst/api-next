@@ -87,4 +87,3 @@ def test_reset_setting_unknown_setting_key():
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             result = client.delete("/settings/lorem_ipsum", **params)
             assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-            # TODO: test the validation error's body

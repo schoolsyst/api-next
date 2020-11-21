@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 from arango.database import StandardDatabase
 from fastapi import Depends, HTTPException, Query, status
@@ -31,7 +30,7 @@ def list_homework(
     all: bool = Query(False),
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
-) -> List[Homework]:
+) -> list[Homework]:
     """
     If ?all is not specified, do not return completed homework
     """

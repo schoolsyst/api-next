@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-from typing import *
+from typing import Any, Literal, Optional, Union
 
 from arango.database import StandardDatabase
 from dotenv import load_dotenv
@@ -44,13 +44,13 @@ password_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
 
-def is_password_strong_enough(password_analysis: Dict[str, Any]) -> bool:
+def is_password_strong_enough(password_analysis: dict[str, Any]) -> bool:
     return password_analysis["score"] >= 2
 
 
 def analyze_password(
     password: str, username: str, email: str
-) -> Optional[Dict[str, Any]]:
+) -> Optional[dict[str, Any]]:
     return zxcvbn(password, [email, username])
 
 
@@ -149,7 +149,7 @@ async def login(
 @router.get("/password_analysis")
 def get_password_analysis(
     password: str, email: EmailStr, username: UsernameStr
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Analyses a password, given the password, the user's email address and the user's username.
     Also returns a strong_enough key.

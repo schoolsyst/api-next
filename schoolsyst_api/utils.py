@@ -25,9 +25,6 @@ def make_json_serializable(o: dict) -> dict:
 
 D = TypeVar("D", datetime, date)
 
-# TODO: instead of those three functions, a daterange class,
-# and date_in_range could be implemented as __in__ (as well as do_dateranges_overlap)
-
 
 def daterange(start: D, end: D, precision: str = "days") -> Iterator[D]:
     """

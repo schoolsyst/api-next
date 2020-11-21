@@ -3,6 +3,7 @@ from enum import auto
 from typing import Optional
 
 from fastapi_utils.enums import StrEnum
+from pydantic.color import Color
 from schoolsyst_api.models import (
     BaseModel,
     DatetimeRange,
@@ -13,7 +14,14 @@ from schoolsyst_api.models import (
 
 
 class InEvent(BaseModel):
-    subject_key: ObjectKey
+    """
+    An event of the schedule.
+    This constitutes the "base" schedule,
+    that would be always correct if we lived in a perfect world.
+    """
+    subject_key: Optional[ObjectKey] = None
+    title: Optional[str] = None
+    color: Optional[Color] = None
     start: time
     end: time
     day: ISOWeekDay
@@ -28,6 +36,8 @@ class Event(OwnedResource, InEvent):
 
 class EventMutationInterpretation(StrEnum):
     """
+    Possible interpretations of an event mutation.
+
     #### edit
 
     A simple editing of the course, while keeping it on the same day.
@@ -72,6 +82,8 @@ class EventMutation(OwnedResource):
     @property
     def interpretation(self) -> Optional[EventMutationInterpretation]:
         """
+        Computes the correct interpretation of the mutation using the following algorithm:
+
         if subject_key
            and added_in     and deleted_in      -> edit
            and added_in     and not deleted_in  -> None
@@ -84,33 +96,35 @@ class EventMutation(OwnedResource):
            and not added_in and not deleted_in  -> None
 
         >>> import nanoid
+        >>> from schoolsyst_api.models import userkey, objectkey, DatetimeRange
+        >>> from datetime import datetime
         >>> EventMutation(
         ...     owner_key=userkey(),
         ...     subject_key=objectkey(userkey()),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation.value
         'edit'
         >>> EventMutation(
         ...     owner_key=userkey(),
         ...     subject_key=objectkey(userkey()),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
         ... ).interpretation
         >>> EventMutation(
         ...     owner_key=userkey(),
         ...     subject_key=objectkey(userkey()),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation
         >>> EventMutation(
@@ -119,29 +133,29 @@ class EventMutation(OwnedResource):
         ... ).interpretation
         >>> EventMutation(
         ...     owner_key=userkey(),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation.value
         'reschedule'
         >>> EventMutation(
         ...     owner_key=userkey(),
-        ...     added_in=DateRange(
-        ...         start=date(2020, 5, 4),
-        ...         end=date(2020, 6, 4)
+        ...     added_in=DatetimeRange(
+        ...         start=datetime(2020, 5, 4),
+        ...         end=datetime(2020, 6, 4)
         ...     ),
         ... ).interpretation.value
         'addition'
         >>> EventMutation(
         ...     owner_key=userkey(),
-        ...     deleted_in=DateRange(
-        ...         start=date(2020, 4, 4),
-        ...         end=date(2020, 5, 3)
+        ...     deleted_in=DatetimeRange(
+        ...         start=datetime(2020, 4, 4),
+        ...         end=datetime(2020, 5, 3)
         ...     )
         ... ).interpretation.value
         'deletion'
@@ -163,7 +177,15 @@ class EventMutation(OwnedResource):
 
 
 class Course(OwnedResource):
-    subject_key: ObjectKey
+    """
+    Represents a course.
+    Unlike _events_, courses have a start _**date**-time_, and
+    thus describe where a course takes place _on that particular day_, i.e. an event
+    with mutations, holidays, etc. applied.
+    """
+    subject_key: Optional[ObjectKey] = None
+    title: Optional[str] = None
+    color: Optional[Color] = None
     start: datetime
     end: datetime
     room: str

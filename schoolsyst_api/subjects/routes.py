@@ -1,5 +1,3 @@
-from typing import List
-
 from arango.database import StandardDatabase
 from fastapi import Depends, status
 from fastapi_utils.inferring_router import InferringRouter
@@ -31,7 +29,7 @@ def create_subject(
 def list_subjects(
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
-) -> List[Subject]:
+) -> list[Subject]:
     return helper.list(db, current_user)
 
 

@@ -8,6 +8,11 @@ from schoolsyst_api.models import OwnedResource
 
 
 class NoteContentType(StrEnum):
+    """
+    A note's content type, if created with schoolsyst,
+    or the value "external" if imported from an external source.
+    """
+
     html = auto()
     markdown = auto()
     asciidoc = auto()
@@ -15,6 +20,10 @@ class NoteContentType(StrEnum):
 
 
 class NoteExportContentType(StrEnum):
+    """
+    The content types that a note can be exported to.
+    """
+
     pdf = auto()
     tex = auto()
     docx = auto()
@@ -28,10 +37,19 @@ class NoteExportContentType(StrEnum):
 
 
 class NoteSourceService(StrEnum):
+    """
+    A service for an externally-sourced note.
+    """
+
     pass
 
 
 class Note(OwnedResource):
+    """
+    A note, can be a lesson, an exercise, or anything made of text.
+    Could be analyzed for automatic quizz generation in the future.
+    """
+
     name: str = ""
     content: str = ""
     content_type: NoteContentType = NoteContentType.html
