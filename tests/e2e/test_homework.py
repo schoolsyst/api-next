@@ -138,7 +138,7 @@ def test_update_a_homework():
         with authed_request(client, "alice", ALICE_PASSWORD) as params:
             response = client.patch(
                 f"/homework/{mocks.homework.coursework_français_completed_alice.object_key}",
-                json={"progress": 0.5},
+                json={"explicit_progress": 0.5},
                 **params,
             )
 

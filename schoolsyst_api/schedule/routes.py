@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from typing import List, Optional
+from typing import Optional
 
 from arango.database import StandardDatabase
 from fastapi import Depends, Query, status
@@ -48,7 +48,7 @@ def create_event(
 def list_events(
     db: StandardDatabase = Depends(database.get),
     current_user: User = Depends(get_current_confirmed_user),
-) -> List[Event]:
+) -> list[Event]:
     return helper.list(db, current_user)
 
 
@@ -56,18 +56,18 @@ def list_events(
 def list_courses(
     start: date,
     end: date,
-    include: List[EventMutationInterpretation] = Query(
+    include: list[EventMutationInterpretation] = Query(
         [
             EventMutationInterpretation.addition,
             EventMutationInterpretation.deletion,
             EventMutationInterpretation.reschedule,
         ]
     ),
-    week_types: Optional[List[WeekType]] = Query(None),
+    week_types: Optional[list[WeekType]] = Query(None),
     current_user: User = Depends(get_current_confirmed_user),
     settings: Settings = Depends(settings.get),
     db: StandardDatabase = Depends(database.get),
-) -> List[Course]:
+) -> list[Course]:
     """
     {start} is included, {end} is excluded (like python's range())
     """
@@ -76,7 +76,7 @@ def list_courses(
     all_events = [
         batch for batch in db.collection("events").find({"owner_key": current_user.key})
     ]
-    all_events: List[Event] = [Event(**event) for event in all_events]
+    all_events: list[Event] = [Event(**event) for event in all_events]
     # Get all of the mutations
     all_mutations = [
         batch
@@ -84,7 +84,7 @@ def list_courses(
             {"owner_key": current_user.key}
         )
     ]
-    all_mutations: List[EventMutation] = [
+    all_mutations: list[EventMutation] = [
         EventMutation(**mutation) for mutation in all_mutations
     ]
     # filter mutations accordinh to ?include
@@ -95,7 +95,7 @@ def list_courses(
     if week_types == "auto":
         week_types = [get_week_type(start, settings)]
 
-    courses: List[Course] = []
+    courses: list[Course] = []
     for day in daterange(start, end, precision="days"):
         # Skip outside of year layout
         if not any(day in year_part for year_part in settings.year_layout):

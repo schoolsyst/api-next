@@ -6,6 +6,10 @@ from schoolsyst_api.models import BaseModel, ObjectKey, OwnedResource, Primantis
 
 
 class InGrade(BaseModel):
+    """
+    A grade.
+    """
+
     title: str
     unit: confloat(gt=0)
     details: str = ""
@@ -18,6 +22,10 @@ class InGrade(BaseModel):
 
 
 class PatchGrade(InGrade):
+    """
+    Special model used to patch grades.
+    """
+
     title: Optional[str] = None
     unit: Optional[confloat(gt=0)] = None
 

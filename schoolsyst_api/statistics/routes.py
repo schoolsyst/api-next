@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from arango.database import StandardDatabase
 from fastapi import Depends
@@ -29,7 +29,7 @@ def mean(*values: Union[int, float]) -> float:
     return sum(values) / len(values)
 
 
-def weighted_mean(*values: Tuple[float, float]) -> float:
+def weighted_mean(*values: tuple[float, float]) -> float:
     """
     Weighted average: takes tuples of (value, weight)
     and returns the average of those
@@ -39,7 +39,7 @@ def weighted_mean(*values: Tuple[float, float]) -> float:
     )
 
 
-def weighted_mean_grades(grades: List[Grade], value_attr: str) -> Primantissa:
+def weighted_mean_grades(grades: list[Grade], value_attr: str) -> Primantissa:
     """
     Calculates a weighted mean of `grades` by using `getattr(grade, value_attr)`
     as the value and grade.weight as the weight

@@ -22,9 +22,11 @@ requirements.txt:
 
 test:
 	poetry run \
-		python -m doctest -v schoolsyst_api/**.py \
-	&& poetry run \
-		pytest --cov=schoolsyst_api
+		pytest --cov=schoolsyst_api --doctest-modules
+
+testlf:
+	poetry run \
+		pytest --doctest-modules --lf
 
 tidy:
 	poetry run \

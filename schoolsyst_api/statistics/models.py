@@ -26,6 +26,10 @@ class GradeStats(BaseModel):
 
 
 class CountAndPercentage(BaseModel):
+    """
+    Re-used object containing a count and a percentage of that count over some total.
+    """
+
     percent: Primantissa
     count: int
 

@@ -8,7 +8,7 @@ repository = "https://github.com/schoolsyst/api-next"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 fastapi = "^0.60.1"
 ujson = "^3.0.0"
 email_validator = "^1.1.1"
