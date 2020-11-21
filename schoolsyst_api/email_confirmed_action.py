@@ -62,9 +62,6 @@ class EmailConfirmedAction:
                     self._render_mail_template_file(
                         "html", current_user=current_user, token=token
                     ),
-                    self._render_mail_template_file(
-                        "txt", current_user=current_user, token=token
-                    ),
                 ],
             )
 
@@ -105,7 +102,13 @@ class EmailConfirmedAction:
             },
         )
 
-    def send_request(self, current_user: User, tasks: BackgroundTasks) -> None:
+    def _send_request(self, current_user: User) -> None:
+        token = create_jwt_token(
+            self.jwt_sub_format, current_user.username, self.token_valid_for
+        )
+        self._send_mail_function(token, current_user)
+
+    def queue_request_sending(self, current_user: User, tasks: BackgroundTasks) -> None:
         token = create_jwt_token(
             self.jwt_sub_format, current_user.username, self.token_valid_for
         )
