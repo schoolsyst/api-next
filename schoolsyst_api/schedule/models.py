@@ -3,6 +3,7 @@ from enum import auto
 from typing import Optional
 
 from fastapi_utils.enums import StrEnum
+from pydantic.color import Color
 from schoolsyst_api.models import (
     BaseModel,
     DatetimeRange,
@@ -18,8 +19,9 @@ class InEvent(BaseModel):
     This constitutes the "base" schedule,
     that would be always correct if we lived in a perfect world.
     """
-
-    subject_key: ObjectKey
+    subject_key: Optional[ObjectKey] = None
+    title: Optional[str] = None
+    color: Optional[Color] = None
     start: time
     end: time
     day: ISOWeekDay
@@ -181,8 +183,9 @@ class Course(OwnedResource):
     thus describe where a course takes place _on that particular day_, i.e. an event
     with mutations, holidays, etc. applied.
     """
-
-    subject_key: ObjectKey
+    subject_key: Optional[ObjectKey] = None
+    title: Optional[str] = None
+    color: Optional[Color] = None
     start: datetime
     end: datetime
     room: str
